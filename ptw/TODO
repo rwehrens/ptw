@@ -4,7 +4,10 @@ Things to do before the stick-variant of ptw is finished:
    interpolation with the danger of NA values. This is also the main
    reason why the stuff does not yet work in easy cases (!): when only
    a single time is available nearly always an NA is returned as the
-   new time point.
+   new time point. An alternative is to swap the roles of reference
+   and sample: instead of warping the time in the sample we can
+   warp the time in the reference. This provides an immediate
+   prediction of the time for a given set of coefficients, without any NAs.
 2) add a plot.stptw function
 3) increase efficiency of stick alignment by pre-calculating wac
    values for the reference

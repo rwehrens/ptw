@@ -34,7 +34,6 @@ Rwcc.st <- function(pat1, pat2, trwidth) {
     
 
 ## access to the C functions in wccStick.c
-
 wcc.st <- function(pat1, pat2, trwidth) {
   WCC <- 0
   np1 <- nrow(pat1)
@@ -96,6 +95,10 @@ warp.time <- function(tp, coef) {
 stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth, 
                     trwdth.res = trwdth, ...) 
 {
+  ## first we take out the mass info that is not used here
+  ref <- lapply(ref, function(x) x[, c("rt", "I"), drop = FALSE])
+  samp <- lapply(samp, function(x) x[, c("rt", "I"), drop = FALSE])
+                 
   a <- init.coef
   if (!try) {
     Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth, ...)
@@ -117,7 +120,6 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
 ## we leave out the mass information. We could be aligning TIC values,
 ## so the matrices have only two columns (rt, I). Eventually, this
 ## should be called for all individual mz values.
-
 STWCC <- function(warp.coef, refList, sampList, trwdth) {
   ## find new time points
   for (i in 1:length(sampList)) {
@@ -125,8 +127,7 @@ STWCC <- function(warp.coef, refList, sampList, trwdth) {
     ## if there are NA values in the warped retention times, remove
     ## those. Only keep rt and I information
     sampList[[i]] <-
-        sampList[[i]][!is.na(sampList[[i]][,"rt"]), c("rt", "I"), drop = FALSE]
-    refList[[i]] <- refList[[i]][,c("rt", "I")]
+        sampList[[i]][!is.na(sampList[[i]][,"rt"]), , drop = FALSE]
   }
   
   wccs <- mapply(wcc.st, refList, sampList, trwidth = trwdth)

@@ -1,7 +1,10 @@
 Things to do before the stick-variant of ptw is finished:
 
 1) improve the prediction of warped time points - now a clumsy
-   interpolation with the danger of NA values
+   interpolation with the danger of NA values. This is also the main
+   reason why the stuff does not yet work in easy cases (!): when only
+   a single time is available nearly always an NA is returned as the
+   new time point.
 2) add a plot.stptw function
 3) increase efficiency of stick alignment by pre-calculating wac
    values for the reference

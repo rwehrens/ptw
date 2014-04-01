@@ -1,0 +1,7 @@
+Things to do before the stick-variant of ptw is finished:
+
+1) improve the prediction of warped time points - now a clumsy
+   interpolation with the danger of NA values
+2) add a plot.stptw function
+3) increase efficiency of stick alignment by pre-calculating wac
+   values for the reference

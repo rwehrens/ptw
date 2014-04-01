@@ -123,8 +123,10 @@ STWCC <- function(warp.coef, refList, sampList, trwdth) {
   for (i in 1:length(sampList)) {
     sampList[[i]][,"rt"] <- warp.time(sampList[[i]][,"rt"], warp.coef)
     ## if there are NA values in the warped retention times, remove
-    ## those
-    sampList[[i]] <- sampList[[i]][!is.na(sampList[[i]][,"rt"]),,drop = FALSE]
+    ## those. Only keep rt and I information
+    sampList[[i]] <-
+        sampList[[i]][!is.na(sampList[[i]][,"rt"]), c("rt", "I"), drop = FALSE]
+    refList[[i]] <- refList[[i]][,c("rt", "I")]
   }
   
   wccs <- mapply(wcc.st, refList, sampList, trwidth = trwdth)

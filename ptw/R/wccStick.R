@@ -76,29 +76,6 @@ warp.time <- function(tp, coef) {
   new.tp <- c(outer(tp2, powers, FUN = "^") %*% coef)
   approx(new.tp, tp2, xout = tp)$y
 }
-## warp.time <- function(tp, coef) {
-##   powers <- 1:length(coef) - 1
-##   ## it may happen that for an mz channel there is only one rt and
-##   ## therefore the difference is zero: in that case we simply take
-##   ## 5 seconds. If there is a range of rt values, we take 1 percent of
-##   ## that range.  
-##   small.value <- max(diff(tp[c(1, ntp)])*0.01, 1)
-
-##   ## the next correction is the wrong way around.
-##   new.tp <- c(outer(tp, powers, FUN = "^") %*% coef)
-##   ## We assume some form of symmetry and add the diffs with the
-##   ## origina points to the list
-  
-##   tp <- sort(tp)
-##   ntp <- length(tp)
-
-##   tp2 <- sort(c(2*tp[1] - tp[2],
-##                 rbind(tp - small.value, tp + small.value),
-##                 2*tp[ntp-1] - tp[ntp]))
-
-##   new.tp <- c(outer(tp2, powers, FUN = "^") %*% coef)
-##   approx(new.tp, tp2, xout = tp)$y
-## }
 
 ## stick version of ptw: always global alignment, always using WCC, no
 ## selected traces,  no try argument. Here ref and sample are derived

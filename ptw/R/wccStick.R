@@ -3,79 +3,152 @@
 ## access to the C functions in wccStick.c. Both pat1 and pat2 should
 ## be two-column matrices, with rt in the first column and I in the
 ## second. Returns the wcc value for these two stick spectra.
-wcc.st <- function(pat1, pat2, trwidth) {
-  WCC <- 0
+wcc.st <- function(pat1, pat2, trwidth, acors1 = NULL, acors2 = NULL) {
+  WAC <- WCC <- 0
   np1 <- nrow(pat1)
   np2 <- nrow(pat2)
   p1 <- c(pat1)
   p2 <- c(pat2)
-  
+
+  if (is.null(acors1))
+      acors1 <- .C("st_WAC",
+            as.double(p1),
+            as.integer(np1),
+            as.double(trwidth),
+            WAC = as.double(WAC),
+            package = "ptw")$WAC
+  if (is.null(acors2))
+      acors2 <- .C("st_WAC",
+            as.double(p2),
+            as.integer(np2),
+            as.double(trwidth),
+            WAC = as.double(WAC),
+            package = "ptw")$WAC
   res <- .C("st_WCC",
             as.double(p1),
             as.integer(np1),
             as.double(p2),
             as.integer(np2),
             as.double(trwidth),
-            as.double(WCC),
-            package = "ptw")
+            WCC = as.double(WCC),
+            package = "ptw")$WCC
   
-  res[[6]]
+  res / (acors1*acors2)
 }
+
+wac.st <- function(pat1, trwidth) {
+  WAC <- 0
+  np1 <- nrow(pat1)
+  p1 <- c(pat1)
+  
+  .C("st_WAC",
+     as.double(p1),
+     as.integer(np1),
+     as.double(trwidth),
+     WAC = as.double(WAC),
+     package = "ptw")$WAC
+}
+
 
 ## #######################################################################
 ## analogon to pmwarp.R: the actual optimization. Changes w.r.t. pmwarp:
 ## 1) only present for WCC, so all references to optim.crit are taken out
 ## 2) call optim using the STWCC function rather than WCC
-## 3) for this initial version, ref.acors is not used, is calculated in C
-## 4) for this initial version, wghts is not used, is calculated in C
-## 5) trwdth and trwdth.res should be given in REAL TIME UNITS, and
+## 3) trwdth and trwdth.res should be given in REAL TIME UNITS, and
 ##    not in terms of sampling points
 stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth, 
-                    trwdth.res = trwdth, ...) 
+                    trwdth.res, ...) 
 {
+  ncr <- ceiling(max(sapply(ref, function(x) max(x[,"rt"]))))
+  
   ## first we take out the mass info that is not used here
-  ref <- lapply(ref, function(x) x[, c("rt", "I"), drop = FALSE])
-  samp <- lapply(samp, function(x) x[, c("rt", "I"), drop = FALSE])
-                 
-  a <- init.coef
+  ref <- lapply(ref,
+                function(x) x[, c("rt", "I"), drop = FALSE])
+  samp <- lapply(samp,
+                 function(x) matrix(cbind(x[, "rt"]/ncr, x[, "I"]),
+                                    ncol = 2,
+                                    dimnames = list(NULL, c("rt", "I"))))
+
+  n <- length(init.coef)
+  a <- init.coef * ncr^(0:(n-1))
   if (!try) {
-    Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth, ...)
+    ref.acors <- sapply(ref, wac.st, trwdth)
+    Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth,
+                 ref.acors = ref.acors, ...)
     
     a <- c(Opt$par)
   }
 
-  v <- STWCC(a, ref, samp, trwdth.res)
+  if (!missing(trwdth.res)) {
+    ref.acors <- sapply(ref, wac.st, trwdth.res)
+    v <- STWCC(a, ref, samp, trwdth.res, ref.acors)
+  } else {
+    v <- Opt$value
+  }
+
+  ## backtransform the coefficients...
+  a <- a/ncr^(0:(n - 1))
 
   list(a = a, v = v)
 }
 
 
-STWCC <- function(warp.coef, refList, sampList, trwdth) {
-  for (i in 1:length(sampList)) {
-    sampList[[i]][,"rt"] <- warp.time(sampList[[i]][,"rt"], warp.coef)
-    sampList[[i]] <-
-        sampList[[i]][!is.na(sampList[[i]][,"rt"]), , drop = FALSE]
-  }
+STWCC <- function(warp.coef, refList, sampList, trwdth, ref.acors) {
+  nmz <- length(refList)
+  if (length(sampList) != nmz)
+      stop("unequal mz lists in STWCC!")
   
-  wccs <- mapply(wcc.st, refList, sampList, trwidth = trwdth)
+  for (i in 1:length(sampList)) 
+      sampList[[i]][,"rt"] <- warp.time(sampList[[i]][,"rt"], warp.coef)
+
+  wccs <- sapply(1:nmz,
+                 function(ii)
+                 wcc.st(refList[[ii]],
+                        sampList[[ii]],
+                        trwidth = trwdth,
+                        acors1 = ref.acors[ii]))
+
+  ## cat("\nCoefficients:", warp.coef, " and WCC: ", mean(wccs))
   
   1 - mean(wccs)
 }
 
+## use of time warping the other way around: now the warping
+## coefficients immediately give the new time of a feature. For sticks
+## this is OK immediately, for continuous signals an interpolation is
+## needed to get to integer coefficients. Maybe Paul's trick to avoid
+## too small numbers is important. Let's leave that for the moment.
 warp.time <- function(tp, coef) {
   powers <- 1:length(coef) - 1
-
-  ## the next correction is the wrong way around.
-  new.tp <- c(outer(tp, powers, FUN = "^") %*% coef)
-  ## We assume some form of symmetry and add the diffs with the
-  ## original points to the list
-
-  tp2 <- outer(2*tp - new.tp, -3:3, "*")
-  tp2 <- sort(c(tp2))
-
-  new.tp <- c(outer(tp2, powers, FUN = "^") %*% coef)
-  approx(new.tp, tp2, xout = tp)$y
+  c(outer(tp, powers, FUN = "^") %*% coef)
 }
+
+## attempt to do for discrete signals what Paul did for continuous
+## signals - does not work ... :-(
+## warp.time.inverse <- function (tp, coef, maxGrow = 3, growFact = .25,
+##                                nGrain = 500) 
+## {
+##   powers <- 1:length(coef) - 1
+##   ## create a sequence of points hopefully covering the range of the
+##   ## mapped points: this cannot really be determined beforehand so we
+##   ## increase the size of the sequence in steps.
+##   new.tp <- tp
+##   for (i in 1:maxGrow) {
+##     dfrange <- diff(range(new.tp))
+##     new.tp <- seq(min(new.tp) - dfrange*growFact,
+##                   max(new.tp) + dfrange*growFact,
+##                   by = dfrange / nGrain)
+##     w <- c(outer(new.tp, powers, FUN = "^") %*% coef)
+##     result <- approx(w, new.tp, xout = tp)$y
+
+##     if (!any(is.na(result))) break
+##   }
+
+##   if (any(is.na(result)))
+##       warning("NAs in time warping!")
+  
+##   result
+## }
 
 ## stick version of ptw: always global alignment, always using WCC, no
 ## selected traces,  no try argument. Here ref and sample are derived
@@ -86,7 +159,7 @@ stptw <- function (ref, samp,
                    init.coef = c(0, 1, 0), 
                    trwdth = 20, trwdth.res = trwdth, ... )
 {
-  WCC <- stwarp(ref, samp, c(init.coef),
+  WCC <- stwarp(ref, samp, init.coef,
                 trwdth = trwdth, trwdth.res = trwdth.res,
                 ...)
 
@@ -170,38 +243,4 @@ mzchannel2pktab <- function(mzchannels) {
   do.call("rbind", mzchannels)
 }
 
-## ###################################################################
-
-## full R implementation of stick-based WCC for validation purposes
-## and speed comparisons.
-
-## R implementation of Cfg
-## pat1 and pat2 two-column matrices (rt, I). Variable rtwidth is in
-## the same scale as the rt. Eventually this function should be called
-## in a loop for many different mz bins.
-
-Rwght <- function(dff, trwidth) {
-  1 - dff/trwidth
-}
-
-RCfg <- function(pat1, pat2, trwidth) {
-  rtdiffs <- abs(outer(pat1[,1], pat2[,1], "-"))
-  intr <- which(rtdiffs < trwidth, arr.ind = TRUE)
-  if (nrow(intr) == 0) return(0)
-
-  wghts <- sapply(1:nrow(intr),
-                  function(ii)
-                  Rwght(rtdiffs[ intr[ii,1], intr[ii,2] ],
-                        trwidth))
-  prods <- sapply(1:nrow(intr),
-                  function(ii)
-                  pat1[intr[ii,1],2] * pat2[intr[ii,2],2])
-  sum(wghts*prods)
-}
-
-Rwcc.st <- function(pat1, pat2, trwidth) {
-  RCfg(pat1, pat2, trwidth) /
-      sqrt(RCfg(pat1, pat1, trwidth) * RCfg(pat2, pat2, trwidth))
-}
-    
 

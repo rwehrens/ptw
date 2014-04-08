@@ -19,6 +19,7 @@
 
 double st_wght(double, double);
 double st_Cfg(double *, int, double *, int, double);
+void st_WAC(double *, int *, double *, double *);
 void st_WCC(double *, int *, double *, int *, double *, double *);
 
 double st_wght(double dst, double trwdth) {
@@ -47,16 +48,21 @@ double st_Cfg(double *p1, int np1, double *p2, int np2, double trwdth)
   return(anum);
 }
 
+void st_WAC(double *p1, int *pnp1, double *ptrwdth, double *WAC) 
+{
+  int np1 = *pnp1;
+  double trwdth = *ptrwdth;
+  
+  *WAC = st_Cfg(p1, np1, p1, np1, trwdth);
+  *WAC = sqrt(*WAC);
+}
+
 void st_WCC(double *p1, int *pnp1, double *p2, int *pnp2, 
-	      double *ptrwdth, double *WCC) 
+	    double *ptrwdth, double *WCC) 
 {
   int np1 = *pnp1, np2 = *pnp2;
-  double trwdth = *ptrwdth, res1, res2, res3;
+  double trwdth = *ptrwdth;
   
-  res1 = st_Cfg(p1, np1, p2, np2, trwdth);
-  res2 = st_Cfg(p1, np1, p1, np1, trwdth);
-  res3 = st_Cfg(p2, np2, p2, np2, trwdth);
-
-  *WCC = res1 / sqrt(res2 * res3);
+  *WCC = st_Cfg(p1, np1, p2, np2, trwdth);
 }
 

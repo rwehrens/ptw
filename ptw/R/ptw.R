@@ -2,6 +2,7 @@ ptw <- function (ref, samp, selected.traces,
                  init.coef = c(0, 1, 0), try = FALSE,
 		 warp.type = c("individual", "global"),
 		 optim.crit = c("WCC", "RMS"),
+                 mode = c("forward", "backward"),
 		 smooth.param = ifelse(try, 0, 1e05),
 		 trwdth = 20, trwdth.res = trwdth,
                  verbose = FALSE,
@@ -33,8 +34,8 @@ ptw <- function (ref, samp, selected.traces,
   } else {
     if (nrow(init.coef) != nrow(samp))
       if (nrow(init.coef) == 1) {
-        init.coef <- matrix(init.coef, byrow = TRUE,
-                         nrow = nrow(samp), ncol = length(init.coef))
+        init.coef <- matrix(init.coef, byrow = TRUE, nrow = nrow(samp),
+                            ncol = length(init.coef))
       } else {
         stop("The number of warping functions does not match the number of samples")
       }
@@ -57,20 +58,12 @@ ptw <- function (ref, samp, selected.traces,
       } else {
         rfrnc <- ref[i, , drop = FALSE]
       }
-      switch(optim.crit,
-             RMS = {
-               quad.res <- pmwarp(rfrnc,
-                                  samp[i, , drop = FALSE],
-                                  optim.crit, init.coef[i,], try = try,
-                                  smooth.param = smooth.param, ...)
-             },
-             WCC = {
-               quad.res <- pmwarp(rfrnc,
-                                  samp[i, , drop = FALSE],
-                                  optim.crit, init.coef[i,], try = try,
-                                  trwdth = trwdth, trwdth.res = trwdth.res,
-                                  ...)
-             })
+      quad.res <- pmwarp(rfrnc, samp[i, , drop = FALSE],
+                         optim.crit, init.coef[i,], try = try,
+                         mode = mode,
+                         smooth.param = smooth.param,
+                         trwdth = trwdth, trwdth.res = trwdth.res,
+                         ...)
       
       w[i, ] <- quad.res$w
       a[i, ] <- quad.res$a
@@ -92,25 +85,20 @@ ptw <- function (ref, samp, selected.traces,
       }
     }
 
-    switch(optim.crit,
-           RMS = {
-             quad.res <- pmwarp(ref, samp, optim.crit, c(init.coef), try = try,
-                                smooth.param = smooth.param,
-                                ...)
-           },
-           WCC = {
-             quad.res <- pmwarp(ref, samp, optim.crit, c(init.coef), try = try,
-                                trwdth = trwdth, trwdth.res = trwdth.res,
-                                ...)
-           })
+    quad.res <- pmwarp(ref, samp, optim.crit, c(init.coef), try = try,
+                       mode = mode, smooth.param = smooth.param,
+                       trwdth = trwdth, trwdth.res = trwdth.res,
+                       ...)
     
     w <- t(as.matrix(quad.res$w))
     a <- t(as.matrix(quad.res$a))
     v <- quad.res$v
+
+    ## should this be changed for forward mode?
     warped.sample <- t(sapply(1:nrow(samp),
-                         function(i) {
-                           interpol(w, samp[i,])
-                         }))
+                              function(i) {
+                                interpol(w, samp[i,])
+                              }))
   }
     
   if (verbose) cat("\nFinished.\n")  
@@ -119,6 +107,7 @@ ptw <- function (ref, samp, selected.traces,
                 warped.sample = warped.sample,
                 warp.coef = a, warp.fun = w,
                 crit.value = v, optim.crit = optim.crit,
+                mode = mode,
                 warp.type = warp.type)
   class(result) <- "ptw"
   result

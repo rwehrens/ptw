@@ -108,47 +108,13 @@ STWCC <- function(warp.coef, refList, sampList, trwdth, ref.acors) {
                         trwidth = trwdth,
                         acors1 = ref.acors[ii]))
 
-  ## cat("\nCoefficients:", warp.coef, " and WCC: ", mean(wccs))
-  
   1 - mean(wccs)
 }
 
-## use of time warping the other way around: now the warping
-## coefficients immediately give the new time of a feature. For sticks
-## this is OK immediately, for continuous signals an interpolation is
-## needed to get to integer coefficients. Maybe Paul's trick to avoid
-## too small numbers is important. Let's leave that for the moment.
 warp.time <- function(tp, coef) {
   powers <- 1:length(coef) - 1
   c(outer(tp, powers, FUN = "^") %*% coef)
 }
-
-## attempt to do for discrete signals what Paul did for continuous
-## signals - does not work ... :-(
-## warp.time.inverse <- function (tp, coef, maxGrow = 3, growFact = .25,
-##                                nGrain = 500) 
-## {
-##   powers <- 1:length(coef) - 1
-##   ## create a sequence of points hopefully covering the range of the
-##   ## mapped points: this cannot really be determined beforehand so we
-##   ## increase the size of the sequence in steps.
-##   new.tp <- tp
-##   for (i in 1:maxGrow) {
-##     dfrange <- diff(range(new.tp))
-##     new.tp <- seq(min(new.tp) - dfrange*growFact,
-##                   max(new.tp) + dfrange*growFact,
-##                   by = dfrange / nGrain)
-##     w <- c(outer(new.tp, powers, FUN = "^") %*% coef)
-##     result <- approx(w, new.tp, xout = tp)$y
-
-##     if (!any(is.na(result))) break
-##   }
-
-##   if (any(is.na(result)))
-##       warning("NAs in time warping!")
-  
-##   result
-## }
 
 ## stick version of ptw: always global alignment, always using WCC, no
 ## selected traces,  no try argument. Here ref and sample are derived

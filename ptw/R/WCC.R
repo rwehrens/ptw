@@ -1,7 +1,17 @@
-WCC <- function(warp.coef, ref, samp, B, trwdth = 20, wghts, ref.acors = NULL)
+WCC <- function(warp.coef, ref, samp, B, trwdth = 20, wghts, mode,
+                ref.acors = NULL)
 {
-  w <- B %*% warp.coef  
-  interp <- apply(samp, 1, function(x) interpol(w, x))
+  w <- B %*% warp.coef
+
+  if (mode == "backward") {
+    interp <- apply(samp, 1, function(x) interpol(w, x))
+  } else {
+    interp <- apply(samp,
+                    1,
+                    function(x) {
+                      approx(w, x, xout = 1:length(x))$y
+                    })
+  }
 
   if (missing(wghts))
     wghts <- 1 - (0:trwdth)/trwdth

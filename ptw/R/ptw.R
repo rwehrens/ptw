@@ -14,7 +14,12 @@ ptw <- function (ref, samp, selected.traces,
   if (is.vector(ref)) ref <- matrix(ref, nrow = 1)
   if (is.vector(samp)) samp <- matrix(samp, nrow = 1)
   if (nrow(ref) > 1 && nrow(ref) != nrow(samp))
-    stop("The number of references does not equal the number of samples")
+      stop("The number of references does not equal the number of samples")
+  if (length(dim(ref)) > 2)
+      stop("Reference cannot be an array")
+  if (length(dim(samp)) > 2)
+      stop("Sample cannot be an array")
+  
   if (nrow(samp) == 1) warp.type <- "individual"
   
   r <- nrow(samp)

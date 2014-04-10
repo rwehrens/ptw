@@ -9,7 +9,7 @@ summary.ptw <- function(object, ...)
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
   cat("\nWarping coefficients:\n")
   print(object$warp.coef)
-  cat("\nWarping criterion:", object$crit.type)
+  cat("\nWarping criterion:", object$optim.crit)
   cat("\nWarping mode:", object$mode)
   cat(ifelse(object$warp.type == "individual" & nsamp > 1,
              "\nValues:", "\nValue:"), object$crit.value, "\n\n")

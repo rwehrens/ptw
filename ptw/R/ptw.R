@@ -68,8 +68,8 @@ ptw <- function (ref, samp, selected.traces,
       w[i, ] <- quad.res$w
       a[i, ] <- quad.res$a
       v[i] <- quad.res$v
-      warped.sample[i, ] <- warp.sample(samp[i,,drop=FALSE],
-                                        w[i,], mode = mode)
+      warped.sample[i, ] <- c(warp.sample(samp[i,,drop=FALSE],
+                                          w[i,], mode = mode))
     }
   } else {
     if (nrow(ref)==1) 
@@ -92,7 +92,7 @@ ptw <- function (ref, samp, selected.traces,
     a <- t(as.matrix(quad.res$a))
     v <- quad.res$v
 
-    warped.sample <- warp.sample(samp, w, mode)
+    warped.sample <- t(warp.sample(samp, w, mode))
   }
   
   if (verbose) cat("\nFinished.\n")  

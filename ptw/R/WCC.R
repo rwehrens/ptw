@@ -1,21 +1,21 @@
 WCC <- function(warp.coef, ref, samp, B, trwdth = 20, wghts, mode,
                 ref.acors = NULL)
 {
-  w <- B %*% warp.coef
-
-  interp <- warp.sample(samp, w, mode)
-  
   if (missing(wghts))
     wghts <- 1 - (0:trwdth)/trwdth
 
   if (is.null(ref.acors))
     ref.acors <- apply(ref, 1, wac, trwdth = trwdth, wghts = wghts)
+
+  w <- B %*% warp.coef
+  interp <- warp.sample(samp, w, mode)
   
   wccs <- sapply(1:ncol(interp),
                  function(i) {
-                   wcc(ref[i,!is.na(interp[,i])],
-                       interp[!is.na(interp[,i]),i],
-                       trwdth = trwdth, wghts = wghts,
+                   wcc(ref[i, !is.na(interp[,i])],
+                       interp[!is.na(interp[,i]), i],
+                       trwdth = trwdth,
+                       wghts = wghts,
                        acors1 = ref.acors[i])
                  })
   

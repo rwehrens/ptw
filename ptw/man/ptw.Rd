@@ -1,28 +1,25 @@
 \name{ptw}
 \alias{ptw}
-\alias{pmwarp}
 \alias{print.ptw}
 \alias{summary.ptw}
 \title{Parametric Time Warping}
-\description{The main function of the \code{ptw} package: it is a
-  wrapper for the function \code{pmwarp}, which performs parametric time
-  warping of one or more samples. Features in the samples are optimally
-  aligned with features in the reference(s). One may align a single sample 
-  to a single reference, several samples to a single reference, and several 
-  samples to several references. In the latter case, the number of 
-  references and samples should be equal. One may require that all samples 
-  are warped with the same warping function, or one may allow individual
-  warpings for all samples.}
+\description{The main function of the \code{ptw} package, performing
+  parametric time warping of one or more samples. Features in the
+  samples are optimally aligned with features in the reference(s). One
+  may align a single sample to a single reference, several samples to a
+  single reference, and several samples to several references. In the
+  latter case, the number of references and samples should be equal. One
+  may require that all samples are warped with the same warping
+  function, or one may allow individual warpings for all samples.}
 \usage{
 ptw(ref, samp, selected.traces,
     init.coef = c(0, 1, 0), try = FALSE,
     warp.type = c("individual", "global"),
     optim.crit = c("WCC", "RMS"),
+    mode = c("forward", "backward"),
     smooth.param = ifelse(try, 0, 1e05),
     trwdth = 20, trwdth.res = trwdth,
     verbose = FALSE, ...)
-pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
-       trwdth, trwdth.res, smooth.param, ...)
 \method{summary}{ptw}(object, \dots)
 \method{print}{ptw}(x, \dots)
 }
@@ -53,6 +50,14 @@ pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
     the optimal value of the alignment leads to a value of 0. For "WCC",
     this means that \code{1 - WCC} is optimized rather than \code{WCC}
     (where the optimal value equals 1)}
+  \item{mode}{either "forward" or "backward": the latter was the
+    original implementation, basically for a point i in the original
+    signal predicting the point j in the signal that would be in
+    position i in the warped signal. The interpretation of the
+    coefficients is counterintuitive. Therefore the default is
+    "forward", simply predicting the location (time) in the warped
+    signal of a particular point. Apart from possible numerical
+    optimisation issues, both warpings should give the same net result.} 
   \item{smooth.param}{smoothing parameter for smoothing the reference
     and sample when \code{optim.crit} equals \code{"RMS"}. If no
     smoothing is required, set this to 0. The default is to use

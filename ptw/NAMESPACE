@@ -1,3 +1,12 @@
-# Export all names
-exportPattern(".")
+## only export functions that are meant to be called by the user
+export("ptw", "baseline.corr", "bestref", "coda", "padzeros",
+       "ptwgrid", "select.traces", "stptw", "whit1", "whit2")
+
+S3method(print, ptw)
+S3method(plot, ptw)
+S3method(predict, ptw)
+S3method(summary, ptw)
+S3method(print, stptw)
+S3method(summary, stptw)
+
 useDynLib(ptw)

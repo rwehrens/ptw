@@ -1,3 +1,6 @@
+## THIS FILE NEEDS THOROUGH REVISION DUE TO THE INTRODUCTION OF
+## FORWARD/BACKWARD WARPING !!!
+
 ## Paril 1 :-), 2011 (RW)
 ## First working version of predict.ptw.
 

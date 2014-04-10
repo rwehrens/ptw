@@ -68,14 +68,12 @@ ptw <- function (ref, samp, selected.traces,
       w[i, ] <- quad.res$w
       a[i, ] <- quad.res$a
       v[i] <- quad.res$v
-      warped.sample[i, ] <- interpol(w[i, ], samp[i, ])
+      warped.sample[i, ] <- warp.sample(samp[i,,drop=FALSE],
+                                        w[i,], mode = mode)
     }
   } else {
-    warped.sample <- matrix(NA, nrow=nrow(samp), ncol=ncol(samp))
-    
     if (nrow(ref)==1) 
-      ref <- matrix(ref, nrow = nrow(samp), 
-      			ncol = ncol(ref), byrow = TRUE)
+        ref <- matrix(ref, nrow = nrow(samp), ncol = ncol(ref), byrow = TRUE)
     
     if (verbose) {
       if (nrow(ref) == 1) {
@@ -94,13 +92,9 @@ ptw <- function (ref, samp, selected.traces,
     a <- t(as.matrix(quad.res$a))
     v <- quad.res$v
 
-    ## should this be changed for forward mode?
-    warped.sample <- t(sapply(1:nrow(samp),
-                              function(i) {
-                                interpol(w, samp[i,])
-                              }))
+    warped.sample <- warp.sample(samp, w, mode)
   }
-    
+  
   if (verbose) cat("\nFinished.\n")  
 
   result <-list(reference = ref, sample = samp,

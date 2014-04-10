@@ -3,16 +3,8 @@ WCC <- function(warp.coef, ref, samp, B, trwdth = 20, wghts, mode,
 {
   w <- B %*% warp.coef
 
-  if (mode == "backward") {
-    interp <- apply(samp, 1, function(x) interpol(w, x))
-  } else {
-    interp <- apply(samp,
-                    1,
-                    function(x) {
-                      approx(w, x, xout = 1:length(x))$y
-                    })
-  }
-
+  interp <- warp.sample(samp, w, mode)
+  
   if (missing(wghts))
     wghts <- 1 - (0:trwdth)/trwdth
 

@@ -10,7 +10,8 @@ ptw <- function (ref, samp, selected.traces,
 {
   optim.crit <- match.arg(optim.crit)
   warp.type <- match.arg(warp.type)
-
+  mode <- match.arg(mode)
+  
   if (is.vector(ref)) ref <- matrix(ref, nrow = 1)
   if (is.vector(samp)) samp <- matrix(samp, nrow = 1)
   if (nrow(ref) > 1 && nrow(ref) != nrow(samp))

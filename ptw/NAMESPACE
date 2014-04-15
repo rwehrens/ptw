@@ -8,5 +8,6 @@ S3method(predict, ptw)
 S3method(summary, ptw)
 S3method(print, stptw)
 S3method(summary, stptw)
+S3method(plot, stptw)
 
 useDynLib(ptw)

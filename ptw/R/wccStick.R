@@ -174,6 +174,45 @@ print.stptw <- function (object, ...) {
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
 }
 
+
+## can we return something invisibly? Could be useful...
+plot.stptw <- function(x, what = c("signal", "function"), ...) {
+  what <- match.arg(what)
+  
+  if (what == "signal") {
+    refpoints <- do.call("rbind", x$reference)
+    sampoints <- do.call("rbind", x$sample)
+    warpoints <- do.call("rbind", x$warped.sample)
+    plot(rbind(refpoints, sampoints, warpoints)[,c("rt", "mz")],
+         xlab = "Time", ylab = "m/z", pch = 1,
+         col = rep(1:3, c(nrow(refpoints), nrow(sampoints),
+             nrow(warpoints))), 
+         ...)
+    legend("topleft",
+           legend = c("Reference", "Sample", "Warped sample"),
+           pch = 1, col = 1:3)
+  }
+  if (what == "function") {
+    ref.rts <- do.call("rbind", x$reference)[,"rt"]
+    samp.rts <- do.call("rbind", x$sample)[,"rt"]
+    warp.rts <- do.call("rbind", x$warped.sample)[,"rt"]
+    all.rts <- c(ref.rts, samp.rts, warp.rts)
+    
+    time <- floor(min(all.rts)):ceiling(max(all.rts))
+    warped.times <- warp.time(time, x$warp.coef)
+    if (!is.matrix(warped.times))
+        warped.times <- matrix(warped.times, nrow = 1)
+    w.time <- sweep(warped.times, 2, time)
+    matplot(time, t(w.time), type = "n", xlab = "'Time'", 
+            ylab = "Warped 'time' - 'time'", ...)
+    abline(h = 0, col = "gray", ...)
+    matlines(time, t(w.time), lty = 1, type = "l",
+             col = rainbow(nrow(w.time)), 
+             ...)
+  }
+}
+
+
 ## ###################################################################
 ## Aux functions for converting peak tables into lists of mz channels
 

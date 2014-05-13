@@ -4,7 +4,7 @@
 \description{Estimates a trend based on asymmetric least squares. In
   this case used to estimate the baseline of a given spectrum.}
 \usage{
-  asysm(y, lambda = 1e+07, p = 0.001, eps = 1e-8, maxit = 100)
+  asysm(y, lambda = 1e+07, p = 0.001, eps = 1e-8, maxit = 25)
 }
 \arguments{
   \item{y}{data: either a vector or a data matrix containing spectra as rows}

@@ -57,7 +57,7 @@ wac.st <- function(pat1, trwidth) {
 ## 3) trwdth and trwdth.res should be given in REAL TIME UNITS, and
 ##    not in terms of sampling points
 stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth, 
-                    trwdth.res, ...) 
+                    trwdth.res, nGlobal = ifelse(n > 2, 5, 0), ...) 
 {
   ncr <- ceiling(max(sapply(ref, function(x) max(x[,"rt"]))))
   
@@ -73,6 +73,19 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
   a <- init.coef * ncr^(0:(n-1))
   if (!try) {
     ref.acors <- sapply(ref, wac.st, trwdth)
+    if (nGlobal > 0) {
+      require(nloptr)
+      NLOpt <- lapply(1:nGlobal,
+                      function(ii)
+                      nloptr(x0 = a, eval_f = ptw:::STWCC,
+                             lb = rep(-1e+05, n), ub = rep(1e+05, n),
+                             opts = list(algorithm = "NLOPT_GN_CRS2_LM",
+                                 maxeval = 1e+05),
+                             refList = ref, sampList = samp, trwdth = trwdth, 
+                             ref.acors = ref.acors))
+      wccs <- sapply(NLOpt, "[[", "objective")
+      a <- NLOpt[[which.min(wccs)]]$solution
+    }
     Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth,
                  ref.acors = ref.acors, ...)
     
@@ -91,7 +104,6 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
 
   list(a = a, v = v)
 }
-
 
 STWCC <- function(warp.coef, refList, sampList, trwdth, ref.acors) {
   nmz <- length(refList)

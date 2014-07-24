@@ -5,7 +5,7 @@ Version: 1.0-8
 Date: 2013-01-09
 Author: Jan Gerretzen <j.gerretzen@science.ru.nl>, Paul Eilers
         <p.eilers@erasmusmc.nl>, Hans Wouters, Tom Bloemberg
-        <t.bloemberg@science.ru.nl>, Ron Wehrens <ron.wehrens@fmach.it>
+        <t.bloemberg@science.ru.nl>, Ron Wehrens <ron.wehrens@gmail.com>
         and The R Development Core Team
 Maintainer: Tom Bloemberg <t.bloemberg@science.ru.nl>
 Description: Parametric Time Warping aligns patterns, i.e. it aims to
@@ -25,3 +25,4 @@ Repository: CRAN
 Date/Publication: 2013-11-19 11:22:35
 Packaged: 2013-11-19 10:49:06 UTC; tombloem
 NeedsCompilation: yes
+Imports: nloptr

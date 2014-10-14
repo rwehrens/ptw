@@ -57,7 +57,7 @@ wac.st <- function(pat1, trwidth) {
 ## 3) trwdth and trwdth.res should be given in REAL TIME UNITS, and
 ##    not in terms of sampling points
 stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth, 
-                    trwdth.res, nGlobal = ifelse(n > 2, 5, 0), ...) 
+                    trwdth.res, nGlobal, ...) 
 {
   ncr <- ceiling(max(sapply(ref, function(x) max(x[,"rt"]))))
   
@@ -135,11 +135,13 @@ warp.time <- function(tp, coef) {
 ## pktab2mzchannel is doing this.
 stptw <- function (ref, samp, 
                    init.coef = c(0, 1, 0), 
-                   trwdth = 20, trwdth.res = trwdth, ... )
+                   trwdth = 20, trwdth.res = trwdth,
+                   nGlobal = ifelse(length(init.coef) > 3, 5, 0),
+                   ... )
 {
   WCC <- stwarp(ref, samp, init.coef,
                 trwdth = trwdth, trwdth.res = trwdth.res,
-                ...)
+                nGlobal = nGlobal, ...)
 
   warped.sample <- lapply(samp,
                           function(x) {

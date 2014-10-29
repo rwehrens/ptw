@@ -1,4 +1,4 @@
-## wccStick.R
+# wccStick.R
 
 ## access to the C functions in wccStick.c. Both pat1 and pat2 should
 ## be two-column matrices, with rt in the first column and I in the
@@ -59,7 +59,11 @@ wac.st <- function(pat1, trwidth) {
 stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth, 
                     trwdth.res, nGlobal, ...) 
 {
-  ncr <- ceiling(max(sapply(ref, function(x) max(x[,"rt"]))))
+  ncr <- ceiling(max(sapply(ref,
+                            function(x)
+                              ifelse(nrow(x) > 0,
+                                     max(x[,"rt"]),
+                                     NA)), na.rm = TRUE))
   
   ## first we take out the mass info that is not used here
   ref <- lapply(ref,
@@ -111,18 +115,33 @@ STWCC <- function(warp.coef, refList, sampList, trwdth, ref.acors) {
   nmz <- length(refList)
   if (length(sampList) != nmz)
       stop("unequal mz lists in STWCC!")
+
+  ## if a peak is absent in the reference, the corresponding value in
+  ## ref.acors equals zero. So we can loop over all cases where this
+  ## is the case - further speedup. Give a warning if too few peaks
+  ## are found. For the moment, let's say less than 10%
+  peaks.found <- which(ref.acors > 0)
+  wccs <- sapply(peaks.found,
+                 ## empty slots can also occur in the sample...
+                 function(ii) {
+                   if (nrow(sampList[[ii]]) == 0) {
+                     NA
+                   } else {
+                     sampList[[ii]][,"rt"] <-
+                       warp.time(sampList[[ii]][,"rt"], warp.coef)
+                     
+                     wcc.st(refList[[ii]],
+                            sampList[[ii]],
+                            trwidth = trwdth,
+                            acors1 = ref.acors[ii])
+                   }
+                 })
+
+  if (sum(!is.na(wccs)) < 0.1*nmz)
+    warning("Peaks found in less than 10% of all mass bins in the reference...")
   
-  for (i in 1:length(sampList)) 
-      sampList[[i]][,"rt"] <- warp.time(sampList[[i]][,"rt"], warp.coef)
 
-  wccs <- sapply(1:nmz,
-                 function(ii)
-                 wcc.st(refList[[ii]],
-                        sampList[[ii]],
-                        trwidth = trwdth,
-                        acors1 = ref.acors[ii]))
-
-  1 - mean(wccs)
+  1 - mean(wccs, na.rm = TRUE)
 }
 
 warp.time <- function(tp, coef) {

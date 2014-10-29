@@ -15,8 +15,8 @@
   sample signals - a warping even slightly outside the original range of
   \code{1 : ncol(ref)} leads to NA values.}
 \usage{
-RMS(warp.coef, ref, samp, B)
-WCC(warp.coef, ref, samp, B, trwdth = 20, wghts, ref.acors = NULL)
+RMS(warp.coef, ref, samp, B, mode)
+WCC(warp.coef, ref, samp, B, trwdth = 20, wghts, mode, ref.acors = NULL)
 }
 \arguments{
   \item{warp.coef}{a vector of warping coefficients}
@@ -25,6 +25,8 @@ WCC(warp.coef, ref, samp, B, trwdth = 20, wghts, ref.acors = NULL)
     rows in \code{samp}}
   \item{samp}{sample signal; a matrix with one or more rows}
   \item{B}{basis for warping function}
+  \item{mode}{either "forward" (new implementation, also used for
+  warping peak lists) or "backward" (classical implementation).}
   \item{trwdth}{triangle width for the WCC function, expressed in the number
     of data points}
   \item{wghts}{optional weights vector, will be calculated from triangle

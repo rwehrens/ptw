@@ -74,10 +74,12 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
   if (!try) {
     ref.acors <- sapply(ref, wac.st, trwdth)
     if (nGlobal > 0) {
-      require(nloptr)
+      ##      require(nloptr)
+
+      ## I used to have ptw:::STWCC as eval_f - necessary? RW
       NLOpt <- lapply(1:nGlobal,
                       function(ii)
-                      nloptr(x0 = a, eval_f = ptw:::STWCC,
+                      nloptr(x0 = a, eval_f = STWCC,
                              lb = rep(-1e+05, n), ub = rep(1e+05, n),
                              opts = list(algorithm = "NLOPT_GN_CRS2_LM",
                                  maxeval = 1e+05),
@@ -145,7 +147,9 @@ stptw <- function (ref, samp,
 
   warped.sample <- lapply(samp,
                           function(x) {
-                            x[,"rt"] <- warp.time(x[, "rt"], WCC$a)
+                            if (nrow(x) > 0)
+                              x[,"rt"] <- warp.time(x[, "rt"], WCC$a)
+                            
                             x
                           })
   
@@ -178,11 +182,11 @@ summary.stptw <- function (object, ...) {
              "\nValues:", "\nValue:"), object$crit.value, "\n\n")
 }
 
-print.stptw <- function (object, ...) {
-  nsamp <- length(object$sample)
-  nref <- length(object$reference)
-  cat("PTW object:", object$warp.type,
-      ifelse((object$warp.type == "individual" & nsamp > 1),
+print.stptw <- function (x, ...) {
+  nsamp <- length(x$sample)
+  nref <- length(x$reference)
+  cat("PTW object:", x$warp.type,
+      ifelse((x$warp.type == "individual" & nsamp > 1),
              "alignments of", "alignment of"), 
       nsamp, ifelse(nsamp > 1, "samples on", "sample on"), 
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))

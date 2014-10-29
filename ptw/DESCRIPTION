@@ -1,7 +1,7 @@
 Package: ptw
 Type: Package
 Title: Parametric Time Warping
-Version: 1.0-8
+Version: 1.9-1
 Date: 2013-01-09
 Author: Jan Gerretzen <j.gerretzen@science.ru.nl>, Paul Eilers
         <p.eilers@erasmusmc.nl>, Hans Wouters, Tom Bloemberg
@@ -20,9 +20,4 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
 License: GPL (>= 2)
 Copyright: Copyright for the file src/approx.c is detailed in
         inst/COPYRIGHT
-LazyLoad: yes
-Repository: CRAN
-Date/Publication: 2013-11-19 11:22:35
-Packaged: 2013-11-19 10:49:06 UTC; tombloem
-NeedsCompilation: yes
 Imports: nloptr

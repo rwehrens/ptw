@@ -5,8 +5,7 @@ Version: 1.9-2
 Author: Jan Gerretzen <j.gerretzen@science.ru.nl>, Paul Eilers
         <p.eilers@erasmusmc.nl>, Hans Wouters, Tom Bloemberg
         <t.bloemberg@science.ru.nl>, Ron Wehrens <ron.wehrens@gmail.com>
-        and The R Development Core Team
-Maintainer: Tom Bloemberg <t.bloemberg@science.ru.nl>
+Maintainer: Ron Wehrens <ron.wehrens@gmail.com>
 Description: Parametric Time Warping aligns patterns, i.e. it aims to
         put corresponding features at the same locations. The algorithm
         searches for an optimal polynomial describing the warping. It
@@ -17,6 +16,4 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
         reference. Two optimization criteria are implemented: RMS (Root
         Mean Square error) and WCC (Weighted Cross Correlation).
 License: GPL (>= 2)
-Copyright: Copyright for the file src/approx.c is detailed in
-        inst/COPYRIGHT
 Imports: nloptr

@@ -1,0 +1,6 @@
+Changes for version 2.0.0:
+  - implementation of ptw for peak lists: stptw and associated
+    functions
+  - addition of vignette
+  - removal of obsolete function interpol, replaced by approx
+  - new maintainer

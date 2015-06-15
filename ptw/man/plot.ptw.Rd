@@ -12,13 +12,15 @@ warped signals, or the warping function.
 \arguments{
   \item{x}{object of class 'ptw'}
   \item{what}{\code{"signal"} plots the reference, sample and warped
-    sample signal(s); \code{"function"} plots the warping function}
+    sample signal(s); \code{"function"} plots the warping function as 
+	warped 'time' - 'time' for the forward warping mode and as 'time' - 
+	warped 'time' for the backward warping mode.}
   \item{type}{\code{"simultaneous"} plots all signals or warping
     functions in one plot; \code{"individual"} generates multiple plots}
   \item{ask}{logical, whether to ask before showing a new plot}
   \item{\dots}{further arguments to the plotting functions}
 }
-\author{Jan Gerretzen, Ron Wehrens}
+\author{Jan Gerretzen, Ron Wehrens, Tom Bloemberg}
 \examples{
 data(gaschrom)
 ref <- gaschrom[1:8,]

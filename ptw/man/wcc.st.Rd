@@ -11,13 +11,13 @@
   be shifted. Identical patterns lead to a WCC value of 1. 
 }
 \usage{
-wcc(pat1, pat2, trwdth, acors1 = NULL, acors2 = NULL)
-wac (pat1, trwdth)
+wcc.st(pat1, pat2, trwidth, acors1 = NULL, acors2 = NULL)
+wac.st(pat1, trwidth)
 }
 \arguments{
   \item{pat1, pat2}{input patterns. Matrices of two columns, with
     retention time in the first column and intensity in the second.}
-  \item{trwdth}{triangle width, given in the unit of time.}
+  \item{trwidth}{triangle width, given in the unit of time.}
   \item{acors1, acors2}{autocorrelations of the input patterns. If not
     provided, they are calculated}
 }

@@ -40,7 +40,8 @@ predict.ptw <- function(object, newdata,
 
            ## do the warping
            t(sapply(1:nrow(newdata),
-                    function(i) interpol(WF[i,], newdata[i,])))
+                    function(i) ##interpol(WF[i,], newdata[i,])))
+                      approx(newdata[i,], NULL, WF[i,])$y))
          },
          time = {
            correctedTime <- 
@@ -68,7 +69,8 @@ predict.ptw <- function(object, newdata,
 
            t(sapply(1:nrow(correctedTime),
                     function(i)
-                    interpol(correctedTime[i, newdataIndices],
-                             RTref)))
+                      approx(RTref, NULL, correctedTime[i, newdataIndices])$y))
+##                    interpol(correctedTime[i, newdataIndices],
+##                             RTref)))
          })
 }

@@ -38,4 +38,4 @@ wac (pattern1, trwdth, wghts = NULL)
 data(gaschrom)
 wcc(gaschrom[1,], gaschrom[2,], 20)
 }
-\keyword{classif}
+\keyword{manip}

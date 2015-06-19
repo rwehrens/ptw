@@ -1,6 +1,8 @@
 \name{wcc}
 \alias{wcc}
 \alias{wac}
+\alias{wcc.st}
+\alias{wac.st}
 \title{
   Weighted auto- and cross-correlation measures
 }
@@ -8,10 +10,14 @@
   measures. The wcc is a suitable measure for the similarity of two
   patterns when features may be shifted. Identical patterns lead to a
   wcc value of 1.
+
+  Functions \code{wcc} and \code{wac} are meant for profile data
+  (intensities measured at equidistant time points), whereas
+  \code{wcc.st} and \code{wac.st} are meant for peak lists.
 }
 \usage{
 wcc(pattern1, pattern2, trwdth, wghts = NULL, acors1 = NULL, acors2 = NULL)
-wac (pattern1, trwdth, wghts = NULL)
+wac(pattern1, trwdth, wghts = NULL)
 }
 \arguments{
   \item{pattern1, pattern2}{input patterns, typically spectra. Vectors}
@@ -37,5 +43,7 @@ wac (pattern1, trwdth, wghts = NULL)
 \examples{
 data(gaschrom)
 wcc(gaschrom[1,], gaschrom[2,], 20)
+
+wcc(gaschrom.st[[1]], gaschrom.st[[2]], 20)
 }
 \keyword{manip}

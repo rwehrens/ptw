@@ -13,7 +13,12 @@
 
   Functions \code{wcc} and \code{wac} are meant for profile data
   (intensities measured at equidistant time points), whereas
-  \code{wcc.st} and \code{wac.st} are meant for peak lists.
+  \code{wcc.st} and \code{wac.st} are meant for peak lists. In general,
+  wcc values calculated for profiles will be higher since they will also
+  include the large similarity in the empty spaces, i.e., parts of the
+  profiles where no peaks are present (and that will appear to be
+  perfectly aligned), whereas the peak-based version concentrates only
+  on the peaks.
 }
 \usage{
 wcc(pattern1, pattern2, trwdth, wghts = NULL, acors1 = NULL, acors2 = NULL)
@@ -30,16 +35,19 @@ wac(pattern1, trwdth, wghts = NULL)
   \item{acors1, acors2}{autocorrelations of the input patterns. If not
     provided, they are calculated}
 }
-\details{wcc and wac are defined such that the triangle width stands for 
+\details{Functions \code{wcc} and \code{wac} are defined such that the
+  triangle width stands for  
   the number of points on one side of \strong{and including} the current 
   point. Thus, a \code{trwdth} of 0 signifies a non-existent triangle and 
   results in an error; a \code{trwdth} equal to 1 only includes the current
-  point with weight 1 and no neighbouring points.
-
+  point with weight 1 and no neighbouring points. For the stick-based
+  equivalents, the units of the time axis are used for the triangle width.
 }
 \value{One number, the weighted autocorrelation or crosscorrelation}
 \references{
-  de Gelder, R., Wehrens, R. and Hageman, J.A. (2001) "A generalized expression for the similarity of spectra: Application to powder diffraction pattern classification",  Journal of Computational Chemistry, \bold{22}, 273 -- 289.
+  de Gelder, R., Wehrens, R. and Hageman, J.A. (2001)
+  "A generalized expression for the similarity of spectra: Application to powder diffraction pattern classification",
+  Journal of Computational Chemistry, \bold{22}, 273 -- 289. 
 }
 \author{Ron Wehrens}
 \examples{

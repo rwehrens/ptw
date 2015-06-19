@@ -1,59 +1,19 @@
 \name{warp.time}
 \alias{warp.time}
 \title{Transform time according to a given warping function}
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
-}
-\usage{
-warp.time(tp, coef)
-}
-%- maybe also 'usage' for other objects documented here.
+\description{Warp time points according to a warping function.}
+\usage{warp.time(tp, coef)}
 \arguments{
-  \item{tp}{
-%%     ~~Describe \code{tp} here~~
+  \item{tp}{A vector of time points, not necessarily equidistant.}
+  \item{coef}{The coefficients of the parametric time warping function:
+    the first coefficient is the constant shift, the second the linear
+    stretch etcetera.}
 }
-  \item{coef}{
-%%     ~~Describe \code{coef} here~~
-}
-}
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+\value{The function returns a vector of warped time points.}
+\references{Wehrens, R. et al. (2015)
+  "Fast parametric warping of peak lists",
+  Bioinformatics. DOI: 10.1093/bioinformatics/btv299.}
+\author{Ron Wehrens}
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (tp, coef) 
-{
-    powers <- 1:length(coef) - 1
-    c(outer(tp, powers, FUN = "^") \%*\% coef)
-  }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{manip}

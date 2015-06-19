@@ -53,5 +53,5 @@ lcms.pks <- lapply(1:3,
                             cbind("mz" = jj,
                                   pick.peaks(lcms.s.z[jj,,ii], 5)))
                    })
-}
+}}
 \keyword{datasets}

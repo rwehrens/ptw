@@ -2,15 +2,19 @@
 \alias{ptw}
 \alias{print.ptw}
 \alias{summary.ptw}
+\alias{stptw}
+\alias{print.stptw}
+\alias{summary.stptw}
 \title{Parametric Time Warping}
-\description{The main function of the \code{ptw} package, performing
+\description{The main functions of the \code{ptw} package, performing
   parametric time warping of one or more samples. Features in the
   samples are optimally aligned with features in the reference(s). One
   may align a single sample to a single reference, several samples to a
   single reference, and several samples to several references. In the
   latter case, the number of references and samples should be equal. One
   may require that all samples are warped with the same warping
-  function, or one may allow individual warpings for all samples.}
+  function, or one may allow individual warpings for all samples.
+}
 \usage{
 ptw(ref, samp, selected.traces,
     init.coef = c(0, 1, 0), try = FALSE,
@@ -73,7 +77,14 @@ ptw(ref, samp, selected.traces,
   \item{...}{further arguments to optim}
   \item{x, object}{an object of class "ptw"}
 }
-\details{In the optimization mode (\code{try = FALSE}), the function
+\details{Function \code{ptw} and friends is meant for profile data,
+  where intensities have been recorded at regular time points; function
+  \code{stptw} is meant for lists of peaks, for instance obtained after
+  peak-picking the profile data. The latter option is less flexible
+  (Euclidean distance and backward warping have not been implemented)
+  but is much faster, especially for larger data sets.
+
+  In the optimization mode (\code{try = FALSE}), the function
   optimizes the warping coefficients using the chosen criterion (either
   "WCC" or "RMS"). For "RMS", the data are smoothed before the
   optimization, but the quality of the final warping is measured on the
@@ -117,7 +128,8 @@ ptw(ref, samp, selected.traces,
     "global"}
 }
 \seealso{
-  \code{\link{WCC}}, \code{\link{RMS}}, \code{\link{select.traces}}
+  \code{\link{WCC}}, \code{\link{RMS}}, \code{\link{select.traces}},
+  \code{\link{gaschrom}}, \code{\link{lcms}}
 }
 \references{
   Eilers, P.H.C. (2004) "Parametric Time Warping", Analytical Chemistry, \bold{76} (2), 404 -- 411.

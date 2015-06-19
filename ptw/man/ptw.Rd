@@ -143,6 +143,12 @@ samp <- gaschrom[16,]
 gaschrom.ptw <- ptw(ref, samp)
 summary(gaschrom.ptw)
 
+## same with sticks (peak lists)
+ref <- gaschrom.st[[1]]
+samp <- gaschrom[[16]]
+gaschrom.st.ptw <- stptw(ref, samp)
+summary(gaschrom.st.ptw)
+
 gaschrom.ptw <- ptw(ref, samp, init.coef = c(0, 1, 0, 0))
 summary(gaschrom.ptw)
 

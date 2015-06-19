@@ -1,0 +1,80 @@
+\begin{thebibliography}{11}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bloemberg et~al.(2010)Bloemberg, Gerretzen, Wouters, Gloerich,
+  Wessels, van Dael, van~den Heuvel, Eilers, Buydens, and
+  Wehrens]{Bloemberg2010}
+T.G. Bloemberg, J.~Gerretzen, H.~Wouters, J.~Gloerich, H.J.C.T. Wessels, M.~van
+  Dael, L.P. van~den Heuvel, P.H.C. Eilers, L.M.C. Buydens, and R.~Wehrens.
+\newblock Improved parametric time warping for proteomics.
+\newblock \emph{Chemom. Intell. Lab. Syst.}, 104:\penalty0 65--74, 2010.
+
+\bibitem[Bloemberg et~al.(2013)Bloemberg, Gerretzen, Lunshof, Wehrens, and
+  Buydens]{Bloemberg2013}
+T.G. Bloemberg, J.~Gerretzen, A.~Lunshof, R.~Wehrens, and L.M.C. Buydens.
+\newblock Warping methods for spectroscopic and spectrometric signal alignment:
+  a tutorial.
+\newblock \emph{Anal. Chim. Acta}, 781:\penalty0 14--32, 2013.
+
+\bibitem[Clifford and Stone(2012)]{Clifford2012}
+D.~Clifford and G.~Stone.
+\newblock Variable penalty dynamic time warping code for aligning mass
+  spectrometry chromatograms in {R}.
+\newblock \emph{J. Stat. Softw.}, 47\penalty0 (8):\penalty0 1--17, 2012.
+
+\bibitem[de~Juan and Tauler(2006)]{Juan2006}
+A.~de~Juan and R.~Tauler.
+\newblock {MCR} from 2000: progress in concepts and applications.
+\newblock \emph{Crit. Rev. Anal. Chem.}, 36:\penalty0 163--176, 2006.
+
+\bibitem[Eilers(2004)]{Eilers2004}
+P.H.C. Eilers.
+\newblock Parametric time warping.
+\newblock \emph{Anal. Chem.}, 76:\penalty0 404--411, 2004.
+
+\bibitem[Gonzalez-Beltran et~al.(2015)Gonzalez-Beltran, Neumann, Maguire,
+  Rocca-Serra, and Sansone]{Gonzalez2014}
+A.~Gonzalez-Beltran, S.~Neumann, E.~Maguire, P.~Rocca-Serra, and S.~Sansone.
+\newblock The {Risa R/Bioconductor} package: integrative data analysis from
+  experimental metadata and back again.
+\newblock \emph{BMC Bioinformatics}, 15\penalty0 (Suppl 1):\penalty0 S11, 2015.
+
+\bibitem[Smith et~al.(2006)Smith, Want, O{'}Maille, Abagyan, and
+  Siuzdak]{Smith2006}
+C.~A. Smith, E.~J. Want, G.~O{'}Maille, R.~Abagyan, and G.~Siuzdak.
+\newblock \pkg{XCMS}: Processing mass spectrometry data for metabolite
+  profiling using nonlinear peak alignment, matching, and identification.
+\newblock \emph{Anal. Chem.}, 78:\penalty0 779--787, 2006.
+
+\bibitem[Tomasi et~al.(2004)Tomasi, van~den Berg, and Andersson]{Tomasi2004}
+G.~Tomasi, F.~van~den Berg, and C.~Andersson.
+\newblock Correlation-optimized warping and dynamic time warping as
+  preprocessing methods for chromatographic data.
+\newblock \emph{J. Chemom.}, 19:\penalty0 231--241, 2004.
+
+\bibitem[Wang and Isenhour(1987)]{Wang1987}
+C.P. Wang and T.L. Isenhour.
+\newblock Time-warping algorithm applied to chromatographic peak matching gas
+  chromatography / {Fourier Transform infrared / Mass Spectrometry}.
+\newblock \emph{Anal. Chem.}, 59:\penalty0 649--654, 1987.
+
+\bibitem[Wehrens et~al.(2015{\natexlab{a}})Wehrens, Bloemberg, and
+  Eilers]{Wehrens2015a}
+R.~Wehrens, T.G. Bloemberg, and P.H.C. Eilers.
+\newblock Fast parametric time warping of peak lists.
+\newblock \emph{Bioinformatics}, In press, 2015{\natexlab{a}}.
+\newblock \doi{10.1093/bioinformatics/btv299}.
+
+\bibitem[Wehrens et~al.(2015{\natexlab{b}})Wehrens, Carvalho, and
+  Fraser]{Wehrens2015}
+R.~Wehrens, E.~Carvalho, and P.~Fraser.
+\newblock Metabolite profiling in {LC-DAD} using multivariate curve resolution:
+  the alsace package for {R}.
+\newblock \emph{Metabolomics}, 11:\penalty0 143--154, 2015{\natexlab{b}}.
+\newblock \doi{10.1007/s11306-014-0683-5}.
+
+\end{thebibliography}

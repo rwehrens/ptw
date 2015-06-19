@@ -7,10 +7,10 @@
 \usepackage{url}
 \usepackage{Sweave}
 
-\geometry{
-  includeheadfoot,
-  margin=2.54cm
-}
+%% \geometry{
+%%   includeheadfoot,
+%%   margin=2.54cm
+%% }
 
 \newcommand{\pkg}[1]{{\normalfont\fontseries{b}\selectfont #1}}
 \newcommand{\proglang}[1]{{\sffamily #1}}
@@ -33,7 +33,7 @@
 %\let\oldSchunk\Schunk
 %\def\Schunk{\footnotesize\oldSchunk}
 
-\title{Parametric Time Warping of peaks in the ptw package}
+\title{Parametric time warping of peaks with the ptw package}
 \author{Ron Wehrens \and Tom Bloemberg \and Paul Eilers}
 
 \begin{document}
@@ -43,13 +43,10 @@
 \section{Introduction}
 In many fields of science one can find examples where similar events
 are not occuring simultaneously. When comparing these events, one has
-to make sure that they are matched correctly. In speech recognition,
-for instance, this is relevant since speakers do not pronounce words
-with the same speed, and consonants (the ``events'' in this case) need
-to be mapped correctly in order to recognize a word, given a database
-of examples. Also in the natural sciences such phenomena occur,
-especially in techniques employing liquid-chromatography (LC) as a
-separation step, e.g. in metabolomics and proteomics. Retention times
+to make sure that they are matched correctly. In the natural sciences
+such phenomena occur frequently,
+especially in techniques employing chromatography as a
+separation step, e.g., in metabolomics and proteomics. Retention times
 are variable, more so when samples are measured in different labs,
 using different equipment or at different points in time. In cases
 where such retention time differences cannot easily be corrected,
@@ -84,8 +81,9 @@ aligning chromatographic signals for a number of reasons:
 \item it presents \emph{explicit warping functions}. This has a number
   of advantages, mentioned below.
 \end{itemize}
-Note that in many mass-spectrometry-based fields of science such as
-proteomics and metabolomics dedicated peak-matching algorithms are
+Note that in many fields such as
+proteomics and metabolomics, often based on mass-spectrometry (MS)
+detection, dedicated peak-matching algorithms are
 being used to link features across samples. Typically, these allow for
 only minor differences in retention time, and are not able to correct
 for larger ones -- in many cases they are very flexible, and allowing
@@ -93,20 +91,20 @@ too much freedom would lead to many incorrect matches. An example is
 the retention time correction implemented in the popular \R\ package
 \pkg{xcms}, which fits a smooth curve through the centers of peak
 groups and in that way iteratively determines what retention time
-correction to apply~\citep{Smith2006}. Such a procedure works really well to
-counter the small, random deviations, common in LC-MS data. However, it cannot
-correct the larger and more systematic effects that 
-occur when comparing retention times to data measured some time
-before, or measured under different circumstances or in different
-labs. In these cases, the polynomial warpings provided by PTW
-can be extremely useful.
+correction to apply~\citep{Smith2006}. Such a procedure works really
+well to counter the usual small and random deviations in LC-MS
+data. However, it cannot correct the larger and more systematic
+effects that occur when comparing retention times to data measured
+some time before, or measured under different circumstances or in
+different labs. In these cases, the polynomial warpings provided by
+PTW can be extremely useful. 
 
 The current document describes an extension over the original
 implementation in the \pkg{ptw} \R\ package~\citep{Bloemberg2010}
-enabling the warping of stick spectra, i.e., data where not the 
+providing the warping of stick spectra, i.e., data where not the 
 profiles over time are recorded, but only the positions and intensities
-of the features. This not only leads to a speed improvement of
-sometimes orders of magnitude, but also may lead to better
+of the features. This leads to a speed improvement of
+sometimes orders of magnitude, as well as (in some cases) to better
 warpings. The key idea is that the optimization focuses on only the
 relevant parts of the data, and that irrelevant areas with high
 intensities but not constituting regular peaks, as are often
@@ -115,9 +113,8 @@ consequence is also that elements like baseline correction, essential
 in the full-profile version of \code{ptw}, are now taken care of by
 the peak picking procedures, which are often domain-specific, and can
 therefore be much more efficient. The theory of warping sticks is
-(briefly) described in~\citet{Wehrens2015} -- here, we concentrate on
-the \R\ code used to generate the examples and the figures in that
-paper, and show a more full version of the results.
+(briefly) described in~\citet{Wehrens2015a} -- here, we concentrate on
+the \R\ code and show a more full version of the results.
 
 \section{Forward and backward warping}
 The original version of PTW~\citep{Eilers2004} calculates for a given
@@ -166,56 +163,12 @@ present, as well as a pooled apple sample that is used as a quality
 control (QC) sample. This set will be used to show the potential of warping
 sticks on much larger data sets and on sets containing different classes.
 Here, particularly severe deviations of retention times
-occur because of a leaking column. The total-ion current (TIC)
-chromatograms of these data are shown in Figure~\ref{fig:tics}. To
-show the deviations in retention times more clearly, the TICs are
-shown for each class of apples separately, in order of injection. Note
-how different the peaks in the standard mixture (at the top of the
-figure) are, compared to the apple data.
-<<echo=FALSE>>=
-options(width=60)
-library(metaMS)
-load("AllApples.RData")
-load("metaInf.RData")
-
-## Here we only look at Batch 1
-metaInf <- metaInf[metaInf$Batch == 1,]
-batch1.idx <- match(metaInf[,1], names(All.pks))
-All.pks <- All.pks[batch1.idx]
-All.tics <- All.tics[batch1.idx]
-All.xset <- All.xset[batch1.idx]
-@ 
-\begin{figure}[tb]
-\centering
-\setkeys{Gin}{width=.9\textwidth}
-<<fig=TRUE,echo=FALSE,height=6.5,width=10>>=
-plot.order <- order(metaInf$Variety, metaInf$InjectionNr)
-
-tictimes <- 800:2000
-ticmat <- sapply(All.tics[plot.order], 
-                 function(x) approx(x$scantime, x$tic, tictimes)$y)
-par(mar = c(5, 10, 4, 2) + .1)
-image(tictimes, 1:length(plot.order), ticmat, axes = FALSE,
-      col = rev(terrain.colors(20)), xlab= "Retention time (s)", ylab = "")
-box()
-axis(1)
-linepositions <- cumsum(table(metaInf$Variety))
-abline(h = linepositions)
-mtext(side = 2, at = linepositions - table(metaInf$Variety)/2,
-      text = levels(metaInf$Variety), las = 1, line = 1)
-@
-\caption{TICs of the LC-MS data -- intensities increase from white to
-  brown to yellow to green. Injection
-  classes are shown separately to show the gradual increase in
-  retention times more clearly. The earliest injections are at the
-  bottom of each class panel -- retention time shifts are up to one
-  minute in size.}
-\label{fig:tics}
-\end{figure}
+occur because of a leaking column. 
 
 Both sets are publicly available from the Metabolights 
 repository\footnote{\url{http://www.ebi.ac.uk/metabolights}} with
-identifiers MTBLS85 and MTBLS99, respectively.
+identifiers MTBLS85 and MTBLS99, respectively. The raw data can easily
+be read into \R\ using the \pkg{Risa} package \citep{Gonzalez2014}.
 
 %\clearpage
 
@@ -225,34 +178,10 @@ corresponding to those injections where TEA was added. Examples of
 both the elution profiles, obtained after MCR analysis, and the lists
 of peaks obtained from these profiles with a very simple peak picking
 procedure, are shown in Figure~\ref{fig:dadProfiles}. 
-<<echo=FALSE>>=
-load("grapes.RData")
-@ 
 \begin{figure}[tb]
-  \setkeys{Gin}{width=.8\textwidth}
+  \setkeys{Gin}{width=\textwidth}
   \centering
-<<fig=TRUE,echo=FALSE,width=9>>=
-library(lattice)
-samp.idx <- 1
-samp <- as.data.frame.table(grape.profiles[[samp.idx]], 
-                            stringsAsFactors = FALSE)
-colnames(samp) <- c("Time", "Component", "Intensity")
-samp[,"Component"] <- factor(samp[,"Component"], 
-                             levels = paste("Component", 1:14))
-samp[,"Time"] <- as.numeric(samp[,"Time"])
-
-components.shown <- paste("Component", 1:4)
-xyplot(Intensity ~ Time | Component, data = samp, type = "l", col = 4,
-       scales = list(y = "free"), main = names(grape.profiles)[samp.idx], 
-       as.table = TRUE, subset = samp[,"Component"] %in% components.shown,
-       panel = function(...) {
-         panel.xyplot(...)
-         p.idx <- packet.number()
-         rt <- as.numeric(rownames(grape.peaks[[samp.idx]][[p.idx]]))
-         I <- grape.peaks[[samp.idx]][[p.idx]][,"I"]
-         panel.segments(rt, 0, rt, I, col = "red", lwd = 2)
-       })
-@ 
+\includegraphics{stickPTW-003}
 \caption{Some elution profiles from the first sample in the grape data set
   (blue continuous lines). Peaks, obtained after peak picking with a
   very simple algorithm, are indicated with red vertical lines.}
@@ -270,9 +199,22 @@ retention time and intensity), and the second contains the elution
 profiles for each of the components at all time points. As an example, 
 the number of peaks in each sample/component combination can be assessed
 by the following command:
-<<>>=
-sapply(grape.peaks, function(x) sapply(x, nrow))[1:8, 1:7]
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sapply(grape.peaks, function(x) sapply(x, nrow))[1:8, 1:7]
+\end{Sinput}
+\begin{Soutput}
+     Tday00a Tday00b Tday01 Tday03 Tday04 Tday09 Tday10
+[1,]      13      13     15     12     13     16     13
+[2,]       9      10     10     10      7     10      6
+[3,]      13      14     18     15     15     14     15
+[4,]      13      13     13     13     13     15     14
+[5,]      11      14     12     11     12     13     11
+[6,]      15      16     16     15     14     16     14
+[7,]       9      11      9      7      9     12      8
+[8,]       6      11      8      6      8      8      8
+\end{Soutput}
+\end{Schunk}
 where for reasons of space we restrict the output to the first eight
 components and the first seven samples. Clearly, there is some 
 difference in the number of peaks, not only for each component, but
@@ -283,12 +225,20 @@ the different samples reveals that there are some differences in
 retention times. Component 2, for instance, has few peaks and
 therefore is easy to inspect -- the next code shows the retention time
 of the largest feature in this component across all samples:
-<<>>=
-sapply(grape.peaks, function(x) {
-  big.idx <- which.max(x[[2]][,"I"])
-  as.numeric(rownames(x[[2]])[big.idx])
-})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sapply(grape.peaks, function(x) {
++   big.idx <- which.max(x[[2]][,"I"])
++   as.numeric(rownames(x[[2]])[big.idx])
++ })
+\end{Sinput}
+\begin{Soutput}
+Tday00a Tday00b  Tday01  Tday03  Tday04  Tday09  Tday10 
+  10.98   10.80   10.94   10.91   10.94   10.99   10.94 
+ Tday11  Tday13  Tday15  Tday17  Tday21  Tday24  Tday28 
+  10.95   11.09   10.67   10.57   10.89   10.89   10.90 
+\end{Soutput}
+\end{Schunk}
 Assuming that the biggest peak is actually
 the same compound in all cases, we see a maximal retention time
 difference of almost one minute.
@@ -307,13 +257,19 @@ components simultaneously, and use \code{system.time} to get an
 impression on the speed of the warping. All parameters have been kept
 to the system defaults; in particular, a quadratic warping function is
 fitted.
-<<>>=
-library(ptw)
-system.time(grape.profwarp <- 
-  lapply(grape.profiles[-1],
-         function(y) ptw(t(grape.profiles[[1]]), t(y), mode = "forward",
-                         warp.type = "global", trwdth = 40)))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> library(ptw)
+> system.time(grape.profwarp <- 
++   lapply(grape.profiles[-1],
++          function(y) ptw(t(grape.profiles[[1]]), t(y), mode = "forward",
++                          warp.type = "global", trwdth = 40)))
+\end{Sinput}
+\begin{Soutput}
+   user  system elapsed 
+ 23.685   0.072  23.793 
+\end{Soutput}
+\end{Schunk}
 
 In comparison, the warping of the peak positions is much faster --
 note that each profile contains 1,000 time points, whereas the maximal
@@ -324,16 +280,19 @@ call. We now use peak lists rather than lists of elution
 profiles. In stick-based warping, the only possible warping type is
 the \code{"global"} warping, so this argument is no longer
 needed. Here goes: 
-<<>>=
-system.time(grape.stickwarp <- 
-  lapply(grape.peaks[-1], 
-         function(y) 
-           stptw(grape.peaks[[1]], y, trwdth = 40)))
-@
+\begin{Schunk}
+\begin{Sinput}
+> system.time(grape.stickwarp <- 
++   lapply(grape.peaks[-1], 
++          function(y) 
++            stptw(grape.peaks[[1]], y, trwdth = 40)))
+\end{Sinput}
+\begin{Soutput}
+   user  system elapsed 
+  3.737   0.004   3.746 
+\end{Soutput}
+\end{Schunk}
 That is a speed increase of almost an order of magnitude -- not bad!
-<<echo=FALSE>>=
-save(grape.profwarp, grape.stickwarp, file = "grapeWarpings.RData")
-@ 
 
 How good is the agreement between the two types of warping? First of
 all, we can look at the warped profiles, and the positions of the
@@ -342,46 +301,8 @@ Figure~\ref{fig:dadProfiles}, but now for the last sample in the
 sequence, are shown in Figure~\ref{fig:warpedProfiles}.
 \begin{figure}[tb]
   \centering
-    \setkeys{Gin}{width=.8\textwidth}
-<<fig=TRUE,echo=FALSE,width=9>>=
-samp.idx <- 13
-samp <- as.data.frame.table(grape.profwarp[[samp.idx]]$sample, 
-                            stringsAsFactors = FALSE)
-colnames(samp) <- c("Component", "Time", "Intensity")
-samp[,"Component"] <- factor(samp[,"Component"], 
-                             levels = paste("Component", 1:14))
-samp[,"Time"] <- as.numeric(samp[,"Time"])
-samp[,"Class"] <- factor("Original", levels = c("Original", "Warped"))
-
-## the next line should not be necessary after the package has been updated
-colnames(grape.profwarp[[samp.idx]]$warped.sample) <- 
-  colnames(grape.profwarp[[samp.idx]]$sample)
-wsamp <- as.data.frame.table(grape.profwarp[[samp.idx]]$warped.sample, 
-                             stringsAsFactors = FALSE)
-colnames(wsamp) <- c("Component", "Time", "Intensity")
-wsamp[,"Component"] <- factor(wsamp[,"Component"], 
-                              levels = paste("Component", 1:14))
-wsamp[,"Time"] <- as.numeric(wsamp[,"Time"])
-wsamp[,"Class"] <- factor("Warped", levels = c("Original", "Warped"))
-
-bsamp <- rbind(samp, wsamp)
-
-components.shown <- paste("Component", 1:4)
-xyplot(Intensity ~ Time | Component, data = bsamp, type = "l", 
-       scales = list(y = "free"), as.table = TRUE,
-       col = c("gray", "blue"),
-       subset = Component %in% components.shown,
-       groups = bsamp[,"Class"], 
-       panel = function(...) {
-         panel.xyplot(...)
-         p.idx <- packet.number()
-         rt <- 10 + 
-             grape.stickwarp[[samp.idx]]$warped.sample[[p.idx]][,"rt"] / 100
-         I <- grape.stickwarp[[samp.idx]]$warped.sample[[p.idx]][,"I"]
-         panel.segments(rt, 0, rt, I, col = "red", lwd = 2)
-       },
-       main = names(grape.profwarp)[samp.idx])
-@ 
+    \setkeys{Gin}{width=.95\textwidth}
+\includegraphics{stickPTW-009}
 \caption{Warped elution profiles and peak positions from the last
   sample; the figure shows the same components as those in
   Figure~\protect\ref{fig:dadProfiles}. Profiles in gray show the
@@ -400,11 +321,7 @@ algorithms or simply taking a larger time window.
 \begin{figure}[tb]
   \setkeys{Gin}{width=0.45\textwidth}
   \centering
-<<fig=TRUE,echo=FALSE,width=5,height=5>>=
-plot(sapply(grape.profwarp, function(x) x$crit.value),
-     sapply(grape.stickwarp, function(x) x$crit.value),
-     xlab = "WCC (continuous)", ylab = "WCC (sticks)")
-@ 
+\includegraphics{stickPTW-010}
 \caption{Comparison of WCC values from the continuous warping (x axis)
 and stick warping (y axis) of the grape DAD data.}
 \label{fig:wccComparison}
@@ -431,27 +348,7 @@ on the right. Clearly, both sets of warping functions are extremely similar.
 \begin{figure}[bt]
   \centering
   \setkeys{Gin}{width=\textwidth}
-<<fig=TRUE,echo=FALSE,width=12,height=5.5>>=
-par(mfrow = c(1,2))
-mycols <- rainbow(13, end = .7)
-tp <- as.numeric(colnames(grape.profwarp[[1]][[1]]))
-prof.warpings <- 10 + sapply(grape.profwarp, function(x) x$warp.fun)/100
-matplot(tp, prof.warpings - tp, type = "l", lty = 1,
-        main = "Profile warping",
-        col = mycols, ylab = "Warping size", xlab = "Retention time (min.)")
-legend("topleft", legend = 1:13 + 1, lty = 1, col = mycols, ncol = 2, bty = "n")
-
-## stick warping at this point is executed thinking that 1-10000 is
-## the scale, whereas the real scale is 10-20. 
-stick.warpings <- 
-  sapply(grape.stickwarp, 
-         function(x) 10 + warp.time(1:length(tp), x$warp.coef)/100)
-matplot(tp, stick.warpings - tp, type = "l", lty = 1,
-        main = "Stick warping",
-        ylab = "Warping size", xlab = "Retention time (min.)",
-        col = rainbow(13, end = .7))
-legend("topleft", legend = 1:13 + 1, lty = 1, col = mycols, ncol = 2, bty = "n")
-@ 
+\includegraphics{stickPTW-011}
 \caption{Grape DAD data: the 13 warping functions for continuous data
   (left) and sticks (right) -- the first of the 14 samples is taken as
   the reference. The $x$ axis presents the time, and the
@@ -461,28 +358,36 @@ legend("topleft", legend = 1:13 + 1, lty = 1, col = mycols, ncol = 2, bty = "n")
 \end{figure}
 We can warp the peaks with both sets of warping functions, and compare
 the WCC values:
-<<>>=
-## warp peaks according to continuous warping functions
-grape.warped.peaks <- 
-  lapply(2:length(grape.peaks),
-         function(ii) 
-           lapply(grape.peaks[[ii]],
-                  function(x) {
-                    new.times <- warp.time(x[,"rt"],
-                                           t(grape.profwarp[[ii-1]]$warp.coef))
-                    x[,"rt"] <- new.times
-                    x}))
-## calculate WCC values for each sample and each ALS component
-profWCCs <- 1-sapply(grape.warped.peaks,
-                     function(x) 
-                       mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
-
-## and the result is:
-mean(profWCCs)
-
-## compare that to the WCC value obtained in the stick warping:
-mean(sapply(grape.stickwarp, "[[", "crit.value"))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> ## warp peaks according to continuous warping functions
+> grape.warped.peaks <- 
++   lapply(2:length(grape.peaks),
++          function(ii) 
++            lapply(grape.peaks[[ii]],
++                   function(x) {
++                     new.times <- warp.time(x[,"rt"],
++                                            t(grape.profwarp[[ii-1]]$warp.coef))
++                     x[,"rt"] <- new.times
++                     x}))
+> ## calculate WCC values for each sample and each ALS component
+> profWCCs <- 1-sapply(grape.warped.peaks,
++                      function(x) 
++                        mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
+> ## and the result is:
+> mean(profWCCs)
+\end{Sinput}
+\begin{Soutput}
+[1] 0.1699119
+\end{Soutput}
+\begin{Sinput}
+> ## compare that to the WCC value obtained in the stick warping:
+> mean(sapply(grape.stickwarp, "[[", "crit.value"))
+\end{Sinput}
+\begin{Soutput}
+[1] 0.1639269
+\end{Soutput}
+\end{Schunk}
 They are virtually equal, indicating that warping the profiles gives
 the same result as warping the peaks, the latter, of course, being
 much faster.
@@ -514,6 +419,25 @@ Note that this binning process does not mean that mass resolution is lost:
 individual peaks are merely grouped for the purpose of retention time
 alignment.
 
+The total-ion current (TIC)
+chromatograms of these data are shown in Figure~\ref{fig:tics}. To
+show the deviations in retention times more clearly, the TICs are
+shown for each class of apples separately, in order of injection. Note
+how different the peaks in the standard mixture (at the top of the
+figure) are, compared to the apple data.
+\begin{figure}[Htb]
+\centering
+\setkeys{Gin}{width=.9\textwidth}
+\includegraphics{stickPTW-013}
+\caption{TICs of the LC-MS data -- intensities increase from white to
+  brown to yellow to green. Injection
+  classes are shown separately to show the gradual increase in
+  retention times more clearly. The earliest injections are at the
+  bottom of each class panel -- retention time shifts are up to one
+  minute in size.}
+\label{fig:tics}
+\end{figure}
+
 \subsection{Time warping of QC samples only}
 For the apple data set, we start by considering only the 27 QC
 samples. These have been measured at regular intervals,
@@ -521,22 +445,28 @@ covering the complete injection sequence. First we load the data, and
 define bins of $1$ Dalton (i.e., very broad bins) in which peaks are
 grouped. We only retain those bins containing peaks for at least half
 the samples.
-<<>>=
-QC.idx <- which(metaInf$Variety == "QC")
-QC.pks <- All.pks[QC.idx]
-QC.tics <- All.tics[QC.idx]
-
-## divide the peak tables for all files into bins of size 1
-mzbins <- lapply(QC.pks, pktab2mzchannel, massDigits = 0)
-## which bins occur in more than half of the files, more than 13 times?
-allmasses <- table(unlist(lapply(mzbins, function(x) unique(names(x)))))
-mymasses <- as.numeric(names(allmasses[allmasses > 13]))
-length(mymasses)
-@ 
-<<>>=
-## now we can divide the peak tables again, focusing on these masses only 
-QC.mzlist <- lapply(QC.pks, pktab2mzchannel, masses = mymasses, massDigits = 0)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> QC.idx <- which(metaInf$Variety == "QC")
+> QC.pks <- All.pks[QC.idx]
+> QC.tics <- All.tics[QC.idx]
+> ## divide the peak tables for all files into bins of size 1
+> mzbins <- lapply(QC.pks, pktab2mzchannel, massDigits = 0)
+> ## which bins occur in more than half of the files, more than 13 times?
+> allmasses <- table(unlist(lapply(mzbins, function(x) unique(names(x)))))
+> mymasses <- as.numeric(names(allmasses[allmasses > 13]))
+> length(mymasses)
+\end{Sinput}
+\begin{Soutput}
+[1] 698
+\end{Soutput}
+\end{Schunk}
+\begin{Schunk}
+\begin{Sinput}
+> ## now we can divide the peak tables again, focusing on these masses only 
+> QC.mzlist <- lapply(QC.pks, pktab2mzchannel, masses = mymasses, massDigits = 0)
+\end{Sinput}
+\end{Schunk}
 The result is a nested list: for each of the 27 samples, 688
 \emph{m/z} bins are considered in defining a warping
 function. Clearly, this is much more challenging than the 14 DAD
@@ -544,24 +474,13 @@ samples with 14 components.
 
 Let us define the first QC sample as the reference sample, and
 calculate warping functions for all 26 other samples:
-<<echo=FALSE>>=
-## just to speed up things: use precalculated results if available
-if (!file.exists("appleQCWarpings.RData")) {
-  QCwarpings <- lapply(2:length(QC.mzlist),
-                        function(ii)
-                          stptw(QC.mzlist[[1]],
-                                QC.mzlist[[ii]],
-                                trwdth = 50))
-  save(QCwarpings, file = "appleQCwarpings.RData")
-} else {
-  load("appleQCwarpings.RData")
-}
-@ 
-<<eval=FALSE>>=
-QCwarpings <- lapply(2:length(QC.mzlist),
-                     function(ii)
-                       stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> QCwarpings <- lapply(2:length(QC.mzlist),
++                      function(ii)
++                        stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
+\end{Sinput}
+\end{Schunk}
 This step does take some time, so to prevent unnecessary waiting
 during the development of this vignette, we cheat and save
 intermediate results for later re-use.
@@ -571,40 +490,31 @@ We can visualize the effect of the warping by applying it to the
 every time point the total amount of signal across all masses. Here,
 we concentrate on the middle part of the chromatogram, between 800 and
 2000 seconds:
-<<>>=
-## create a matrix of tic signals from the individual vectors of the
-## samples - these are not measured at exactly the same times, so we
-## use interpolation, one value for each second.
-QCticmat <- sapply(QC.tics, 
-                   function(x) 
-                     approx(x$scantime, x$tic, tictimes)$y)
-  
-## Now do the same, but apply the warping to the scantimes
-QCticmat2 <- 
-  sapply(seq(along = QC.tics),
-         function(ii) {
-           if (ii == 1) {
-             approx(QC.tics[[ii]]$scantime, QC.tics[[ii]]$tic, tictimes)$y
-           } else {
-             new.times <- warp.time(QC.tics[[ii]]$scantime, 
-                                    QCwarpings[[ii-1]]$warp.coef)
-             approx(new.times, QC.tics[[ii]]$tic, tictimes)$y
-           }})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> ## create a matrix of tic signals from the individual vectors of the
+> ## samples - these are not measured at exactly the same times, so we
+> ## use interpolation, one value for each second.
+> QCticmat <- sapply(QC.tics, 
++                    function(x) 
++                      approx(x$scantime, x$tic, tictimes)$y)
+> ## Now do the same, but apply the warping to the scantimes
+> QCticmat2 <- 
++   sapply(seq(along = QC.tics),
++          function(ii) {
++            if (ii == 1) {
++              approx(QC.tics[[ii]]$scantime, QC.tics[[ii]]$tic, tictimes)$y
++            } else {
++              new.times <- warp.time(QC.tics[[ii]]$scantime, 
++                                     QCwarpings[[ii-1]]$warp.coef)
++              approx(new.times, QC.tics[[ii]]$tic, tictimes)$y
++            }})
+\end{Sinput}
+\end{Schunk}
 \begin{figure}[tb]
   \centering
   \setkeys{Gin}{width=\textwidth}
-<<fig=TRUE,echo=FALSE,height=3,width=9>>=
-par(mfrow = c(1,2))
-image(tictimes, 1:ncol(QCticmat), QCticmat,
-      col = rev(terrain.colors(20)),
-      main = "Original TICs", 
-      xlab = "Retention time (sec.)", ylab = "QC sample")
-image(tictimes, 1:ncol(QCticmat), QCticmat2, 
-      col = rev(terrain.colors(20)),
-      main = "Warped TICs", 
-      xlab = "Retention time (sec.)", ylab = "QC sample")
-@ 
+\includegraphics{stickPTW-019}
 \caption{Original TICs of the apple QC samples (left), and TICS warped
   according to the warping functions from the peak lists
   (right). The injection order of the samples is from the bottom to
@@ -639,116 +549,162 @@ warped according to the warping functions found in the QC warping,
 through a simple process of linear interpolation between the QCs. We
 can calculate warped retention times for the QC warpings and then
 interpolate, or directly interpolate the warping coefficients:
-<<>>=
-interpolate.warping <- function(rt, coef1, coef2, idx, 
-                                type = c("coef", "time")) { 
-  weights <- abs(idx[2:3] - idx[1]) / diff(idx[2:3])
-  
-  type <- match.arg(type)
-  if (type == "time") {
-    rt1 <- warp.time(rt, coef1)
-    rt2 <- warp.time(rt, coef2)
-    crossprod(rbind(rt1, rt2), weights)
-  } else {
-    coefs <- crossprod(rbind(coef1, coef2), weights)
-    warp.time(rt, coefs[,1])
-  }
-}
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> interpolate.warping <- function(rt, coef1, coef2, idx, 
++                                 type = c("coef", "time")) { 
++   weights <- abs(idx[2:3] - idx[1]) / diff(idx[2:3])
++   
++   type <- match.arg(type)
++   if (type == "time") {
++     rt1 <- warp.time(rt, coef1)
++     rt2 <- warp.time(rt, coef2)
++     crossprod(rbind(rt1, rt2), weights)
++   } else {
++     coefs <- crossprod(rbind(coef1, coef2), weights)
++     warp.time(rt, coefs[,1])
++   }
++ }
+\end{Sinput}
+\end{Schunk}
 
 First we define the relevant QCs for each of the real samples:
-<<>>=
-## sort on injection order
-inj.order <- order(metaInf$InjectionNr)
-metaInf <- metaInf[inj.order,]
-All.pks <- All.pks[inj.order]
-All.tics <- All.tics[inj.order]
-
-## pick out only the apple samples
-sample.idx <- which(!(metaInf$Variety %in% c("QC", "STDmix")))
-QC.idx <- which(metaInf$Variety == "QC")
-## store the IDs of the QC samples around each sample
-neighbours.idx <- t(sapply(sample.idx,
-                           function(x) {
-                             c(x, 
-                               max(QC.idx[QC.idx < x]),
-                               min(QC.idx[QC.idx > x]))
-                           }))
-head(neighbours.idx, 9)
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> ## sort on injection order
+> inj.order <- order(metaInf$InjectionNr)
+> metaInf <- metaInf[inj.order,]
+> All.pks <- All.pks[inj.order]
+> All.tics <- All.tics[inj.order]
+> ## pick out only the apple samples
+> sample.idx <- which(!(metaInf$Variety %in% c("QC", "STDmix")))
+> QC.idx <- which(metaInf$Variety == "QC")
+> ## store the IDs of the QC samples around each sample
+> neighbours.idx <- t(sapply(sample.idx,
++                            function(x) {
++                              c(x, 
++                                max(QC.idx[QC.idx < x]),
++                                min(QC.idx[QC.idx > x]))
++                            }))
+> head(neighbours.idx, 9)
+\end{Sinput}
+\begin{Soutput}
+      [,1] [,2] [,3]
+ [1,]    7    5   14
+ [2,]    8    5   14
+ [3,]    9    5   14
+ [4,]   10    5   14
+ [5,]   11    5   14
+ [6,]   12    5   14
+ [7,]   13    5   14
+ [8,]   15   14   21
+ [9,]   16   14   21
+\end{Soutput}
+\end{Schunk}
 So now we know what warpings to use for each of the sample. For
 example, let's look at the fifth sample, injected at position 12. This
 is flanked by the fourth and fifth QC samples, at positions 5 and 14:
-<<>>=
-relevant.warpings <- which(QC.idx %in% c(5, 14)) - 1
-## Original data:
-head(All.pks[[12]][,c("mz", "rt", "maxo", "sn")])
-## the weighted average of the warpings of the 2 QC samples
-interpolate.warping(All.pks[[12]][1:6, "rt"],
-                    QCwarpings[[relevant.warpings[1]]]$warp.coef,
-                    QCwarpings[[relevant.warpings[2]]]$warp.coef,
-                    neighbours.idx[5,],
-                    type = "time")
-## one warping, obtained by the weighted average of the warping coefs
-interpolate.warping(All.pks[[12]][1:6, "rt"],
-                    QCwarpings[[relevant.warpings[1]]]$warp.coef,
-                    QCwarpings[[relevant.warpings[2]]]$warp.coef,
-                    neighbours.idx[5,],
-                    type = "coef")               
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> relevant.warpings <- which(QC.idx %in% c(5, 14)) - 1
+> ## Original data:
+> head(All.pks[[12]][,c("mz", "rt", "maxo", "sn")])
+\end{Sinput}
+\begin{Soutput}
+           mz       rt      maxo        sn
+[1,] 57.06821 1299.491  7.088608  7.150621
+[2,] 60.07875 1368.869 12.151901 10.056416
+[3,] 67.05031 1370.171  7.088608  5.346768
+[4,] 69.06414 1686.200 14.177216  9.407192
+[5,] 69.06279 1845.409 14.177216  6.286520
+[6,] 69.06596 1616.806  9.113922  4.191239
+\end{Soutput}
+\begin{Sinput}
+> ## the weighted average of the warpings of the 2 QC samples
+> interpolate.warping(All.pks[[12]][1:6, "rt"],
++                     QCwarpings[[relevant.warpings[1]]]$warp.coef,
++                     QCwarpings[[relevant.warpings[2]]]$warp.coef,
++                     neighbours.idx[5,],
++                     type = "time")
+\end{Sinput}
+\begin{Soutput}
+         [,1]
+[1,] 1270.069
+[2,] 1338.654
+[3,] 1339.941
+[4,] 1651.215
+[5,] 1807.324
+[6,] 1583.025
+\end{Soutput}
+\begin{Sinput}
+> ## one warping, obtained by the weighted average of the warping coefs
+> interpolate.warping(All.pks[[12]][1:6, "rt"],
++                     QCwarpings[[relevant.warpings[1]]]$warp.coef,
++                     QCwarpings[[relevant.warpings[2]]]$warp.coef,
++                     neighbours.idx[5,],
++                     type = "coef")               
+\end{Sinput}
+\begin{Soutput}
+[1] 1270.069 1338.654 1339.941 1651.215 1807.324 1583.025
+\end{Soutput}
+\end{Schunk}
 Clearly, the results of the two types of warping are the
 same. Calculating average coefficients is more efficient, so that is
 the default in our function. Now, let's do this for all the samples,
 where we have to remember not only to correct the retention time but
 also the intervals around the retention times:
-<<>>=
-corrected.pks <- 
-  lapply(1:nrow(neighbours.idx),
-         function(pki) {
-           smp.idx <- which(names(All.pks) == 
-                                metaInf[neighbours.idx[pki, 1], "file.name"])
-           QC1 <- which(QC.idx == neighbours.idx[pki, 2]) - 1
-           QC2 <- which(QC.idx == neighbours.idx[pki, 3]) - 1
-           
-           coef1 <- QCwarpings[[QC1]]$warp.coef
-           coef2 <- QCwarpings[[QC2]]$warp.coef
-           
-           cpk <- All.pks[[smp.idx]]
-           cpk[,"rt"] <- interpolate.warping(cpk[,"rt"],
-                                             coef1, coef2,
-                                             neighbours.idx[pki,])
-           cpk[,"rtmin"] <- interpolate.warping(cpk[,"rtmin"],
-                                                coef1, coef2,
-                                                neighbours.idx[pki,])
-           cpk[,"rtmax"] <- interpolate.warping(cpk[,"rtmax"],
-                                                coef1, coef2,
-                                                neighbours.idx[pki,])
-           cpk
-         })
-names(corrected.pks) <- metaInf[neighbours.idx[,1], "file.name"]
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> corrected.pks <- 
++   lapply(1:nrow(neighbours.idx),
++          function(pki) {
++            smp.idx <- which(names(All.pks) == 
++                                 metaInf[neighbours.idx[pki, 1], "file.name"])
++            QC1 <- which(QC.idx == neighbours.idx[pki, 2]) - 1
++            QC2 <- which(QC.idx == neighbours.idx[pki, 3]) - 1
++            
++            coef1 <- QCwarpings[[QC1]]$warp.coef
++            coef2 <- QCwarpings[[QC2]]$warp.coef
++            
++            cpk <- All.pks[[smp.idx]]
++            cpk[,"rt"] <- interpolate.warping(cpk[,"rt"],
++                                              coef1, coef2,
++                                              neighbours.idx[pki,])
++            cpk[,"rtmin"] <- interpolate.warping(cpk[,"rtmin"],
++                                                 coef1, coef2,
++                                                 neighbours.idx[pki,])
++            cpk[,"rtmax"] <- interpolate.warping(cpk[,"rtmax"],
++                                                 coef1, coef2,
++                                                 neighbours.idx[pki,])
++            cpk
++          })
+> names(corrected.pks) <- metaInf[neighbours.idx[,1], "file.name"]
+\end{Sinput}
+\end{Schunk}
 Applying the peak-based warpings to the TICs is done following exactly
 the same line as earlier. First we correct all apple profiles:
-<<>>=
-samp.tics <- All.tics[sample.idx] ## only real apple samples
-Corr.tics <- 
-  lapply(seq(along = samp.tics),
-         function(ii) { ## no warping for the first sample, the reference
-           if (ii == 1) {
-             samp.tics[[1]] 
-           } else {
-             QC1 <- which(QC.idx == neighbours.idx[ii, 2]) - 1
-             QC2 <- which(QC.idx == neighbours.idx[ii, 3]) - 1
-             
-             coef1 <- QCwarpings[[QC1]]$warp.coef
-             coef2 <- QCwarpings[[QC2]]$warp.coef
-
-             new.times <- interpolate.warping(samp.tics[[ii]]$scantime, 
-                                              coef1, coef2, 
-                                              neighbours.idx[ii,])
-             list(tic = samp.tics[[ii]]$tic, scantime = new.times)
-           }})
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> samp.tics <- All.tics[sample.idx] ## only real apple samples
+> Corr.tics <- 
++   lapply(seq(along = samp.tics),
++          function(ii) { ## no warping for the first sample, the reference
++            if (ii == 1) {
++              samp.tics[[1]] 
++            } else {
++              QC1 <- which(QC.idx == neighbours.idx[ii, 2]) - 1
++              QC2 <- which(QC.idx == neighbours.idx[ii, 3]) - 1
++              
++              coef1 <- QCwarpings[[QC1]]$warp.coef
++              coef2 <- QCwarpings[[QC2]]$warp.coef
++ 
++              new.times <- interpolate.warping(samp.tics[[ii]]$scantime, 
++                                               coef1, coef2, 
++                                               neighbours.idx[ii,])
++              list(tic = samp.tics[[ii]]$tic, scantime = new.times)
++            }})
+\end{Sinput}
+\end{Schunk}
 A part of the time axis of these corrected TICs is
 shown in Figure~\ref{fig:ticsCorr}. This figure should be compared
 with Figure~\ref{fig:tics} -- again, we can see that within each class
@@ -760,24 +716,7 @@ tackled with the usual retention time correction methods present in
 \begin{figure}[tb]
 \centering
 \setkeys{Gin}{width=.8\textwidth}
-<<fig=TRUE,echo=FALSE,height=6.5,width=10>>=
-plot.order <- order(metaInf$Variety[sample.idx], 
-                    metaInf$InjectionNr[sample.idx])
-
-ticmatCorr <- sapply(Corr.tics[plot.order], 
-                     function(x) approx(x$scantime, x$tic, tictimes)$y)
-par(mar = c(5, 10, 4, 2) + .1)
-image(tictimes, 1:length(plot.order), ticmatCorr, axes = FALSE,
-      col = rev(terrain.colors(20)), xlab= "Retention time (s)", ylab = "")
-box()
-axis(1)
-varTab <- table(metaInf$Variety[sample.idx])
-varTab <- varTab[varTab > 0]
-linepositions <- cumsum(varTab)
-abline(h = linepositions)
-mtext(side = 2, at = linepositions - varTab/2,
-      text = names(varTab), las = 1, line = 1)
-@
+\includegraphics{stickPTW-025}
 \caption{Corrected TICs of the LC-MS data, where the warping functions
   are obtained from the peak lists.}
 \label{fig:ticsCorr}
@@ -836,54 +775,52 @@ vignette, for example, we have not optimized the bin width at all.
 
 \clearpage
 
-\section{TODO}
-A short list of todos; package-related issues are now on the biometris
-redmine server.
-\begin{itemize}
-\item package: reconsider including \code{approx.c} -- why do we not
-  use the ``current'' R implementation? (I know, there is probably a
-  very good reason. Shouldn't we give that?)
-\item data: use consistent file names everywhere.
-\item package: once all changes in this list have been applied, the
-  version number can be increased to 2.0-0.
-\end{itemize}
-
-\section{DONES}
-Changes w.r.t. version 1.0-8, the first one containing stptw functionality:
-\begin{itemize}
-\item completed the metabolights submission that now includes example
-  R scripts for reading the data, and which obtains its
-  meta-information directly from the isa archive. This also means:
-  slightly different naming (batches 1 and 2 instead of A and B, for
-  example). This also got rid of the ``missing sample'', a standard
-  mix that was not present.
-\item Added some functions to the NAMESPACE file: \code{warp.time},
-  \code{pktab2mzchannel}, \code{mzchannel2pktab},
-  \code{calc.multicoef} (also cleaned the code of this one),
-  \code{calc.zerocoef}, \code{difsm}, \code{interpol} (do we really
-  need this one??), \code{wcc}
-\item Added the \code{nloptr} import to the NAMESPACE file. Should we
-  take this out? Not essential, but it \emph{is} an extra possibility
-  given by the speed of the peak-based algorithm, and global
-  optimization \emph{does} lead to more consistent warpings for
-  higher-order warping functions (poster IBC2014).
-\item fixed a bug, where empty mz channels were warped,
-  unsuccesfully of course.
-\item injection sequence information was added to the apple data on
-  the metabolights repository
-\item now sample classes, included in the metabolights entries, are
-  used to indicate QC samples, rather than codes like ``001''
-\end{itemize}
-
-\clearpage
-
 \bibliographystyle{plainnat}
 \bibliography{ptwbib} 
 
 \clearpage
 \section{Technical details}
-<<>>=
-sessionInfo()
-@ 
+\begin{Schunk}
+\begin{Sinput}
+> sessionInfo()
+\end{Sinput}
+\begin{Soutput}
+R version 3.2.0 (2015-04-16)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 14.04.2 LTS
+
+locale:
+ [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8    
+ [5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8   
+ [7] LC_PAPER=en_GB.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils    
+[6] datasets  methods   base     
+
+other attached packages:
+ [1] ptw_1.9-1           lattice_0.20-29    
+ [3] metaMS_1.2.0        CAMERA_1.22.0      
+ [5] igraph_0.7.1        xcms_1.42.0        
+ [7] mzR_2.0.0           Rcpp_0.11.3        
+ [9] Biobase_2.26.0      BiocGenerics_0.12.0
+
+loaded via a namespace (and not attached):
+ [1] graph_1.44.0        Formula_1.1-2      
+ [3] cluster_2.0.1       splines_3.2.0      
+ [5] tools_3.2.0         nnet_7.3-9         
+ [7] grid_3.2.0          latticeExtra_0.6-26
+ [9] survival_2.38-1     RBGL_1.42.0        
+[11] Matrix_1.1-4        nloptr_1.0.4       
+[13] RColorBrewer_1.0-5  acepack_1.3-3.3    
+[15] codetools_0.2-11    rpart_4.1-9        
+[17] robustbase_0.91-1   DEoptimR_1.0-1     
+[19] Hmisc_3.14-5        stats4_3.2.0       
+[21] foreign_0.8-63     
+\end{Soutput}
+\end{Schunk}
 
 \end{document}

@@ -21,7 +21,9 @@ wac(pattern1, trwdth, wghts = NULL)
 }
 \arguments{
   \item{pattern1, pattern2}{input patterns, typically spectra. Vectors}
-  \item{trwdth}{triangle width, given in the number of data points}
+  \item{trwdth}{triangle width, given in the number of data points for
+    the profile functions, and in the actual retention times for the
+    stick-based warpings.}
   \item{wghts}{optional weights vector, will be calculated from triangle
     width if necessary. Sometimes it is more efficient to
     pre-calculate it and give it as an argument}
@@ -44,6 +46,6 @@ wac(pattern1, trwdth, wghts = NULL)
 data(gaschrom)
 wcc(gaschrom[1,], gaschrom[2,], 20)
 
-wcc(gaschrom.st[[1]], gaschrom.st[[2]], 20)
+wcc.st(gaschrom.st[[1]], gaschrom.st[[2]], 20)
 }
 \keyword{manip}

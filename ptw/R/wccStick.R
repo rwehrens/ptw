@@ -194,7 +194,7 @@ summary.stptw <- function (object, ...) {
       nsamp, ifelse(nsamp > 1, "samples on", "sample on"), 
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
   cat("\nWarping coefficients:\n")
-  print(object$warp.coef)
+  print(coef(object))
   cat("\nWarping criterion:", object$crit.type)
   cat(ifelse(nsamp > 1, 
              "\nValues:", "\nValue:"), object$crit.value, "\n\n")
@@ -234,7 +234,7 @@ plot.stptw <- function(x, what = c("signal", "function"), ...) {
     all.rts <- c(ref.rts, samp.rts, warp.rts)
     
     time <- floor(min(all.rts)):ceiling(max(all.rts))
-    warped.times <- warp.time(time, x$warp.coef)
+    warped.times <- warp.time(time, coef(x))
     if (!is.matrix(warped.times))
         warped.times <- matrix(warped.times, nrow = 1)
     w.time <- sweep(warped.times, 2, time)

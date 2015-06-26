@@ -39,5 +39,12 @@ specific column.
 }
 \author{Ron Wehrens}
 \examples{
+data(lcms)
+## first couple of peaks in the first three channels
+(smallset <- lapply(lcms.pks[[1]][1:3], head))
+## all in one data matrix
+allpeaks <- mzchannel2pktab(smallset)
+## and back again
+pktab2mzchannel(allpeaks, Ivalue = "I")
 }
 \keyword{manip}

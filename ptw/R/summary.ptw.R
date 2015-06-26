@@ -8,8 +8,9 @@ summary.ptw <- function(object, ...)
       ifelse(nsamp > 1, "samples on", "sample on"),
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
   cat("\nWarping coefficients:\n")
-  print(object$warp.coef)
-  cat("\nWarping criterion:", object$crit.type)
+  print(coef(object))
+  cat("\nWarping criterion:", object$optim.crit)
+  cat("\nWarping mode:", object$mode)
   cat(ifelse(object$warp.type == "individual" & nsamp > 1,
              "\nValues:", "\nValue:"), object$crit.value, "\n\n")
 }
@@ -23,4 +24,8 @@ print.ptw <- function(x, ...)
              "alignments of", "alignment of"), nsamp,
       ifelse(nsamp > 1, "samples on", "sample on"),
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
+}
+
+coef.ptw <- function(x, ...) {
+  x$warp.coef
 }

@@ -1,10 +1,14 @@
-RMS <- function(warp.coef, ref, samp, B)
+RMS <- function(warp.coef, ref, samp, B, mode)
 {
   w <- B %*% warp.coef
-  interp <- t(apply(samp, 1, function(x) interpol(w, x)))
 
-  if (nrow(ref) == 1) ref <- c(ref)
+  interp <- warp.sample(samp, w, mode)
+  if (nrow(ref) == 1) {
+    ref <- c(ref)
+  } else {
+    ref <- t(ref)
+  }
   r <- interp - ref
-
+  
   sqrt(mean(r^2, na.rm = TRUE))
 }

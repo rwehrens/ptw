@@ -1,28 +1,30 @@
 \name{ptw}
 \alias{ptw}
-\alias{pmwarp}
 \alias{print.ptw}
 \alias{summary.ptw}
+\alias{coef.ptw}
+\alias{stptw}
+\alias{print.stptw}
+\alias{summary.stptw}
 \title{Parametric Time Warping}
-\description{The main function of the \code{ptw} package: it is a
-  wrapper for the function \code{pmwarp}, which performs parametric time
-  warping of one or more samples. Features in the samples are optimally
-  aligned with features in the reference(s). One may align a single sample 
-  to a single reference, several samples to a single reference, and several 
-  samples to several references. In the latter case, the number of 
-  references and samples should be equal. One may require that all samples 
-  are warped with the same warping function, or one may allow individual
-  warpings for all samples.}
+\description{The main functions of the \code{ptw} package, performing
+  parametric time warping of one or more samples. Features in the
+  samples are optimally aligned with features in the reference(s). One
+  may align a single sample to a single reference, several samples to a
+  single reference, and several samples to several references. In the
+  latter case, the number of references and samples should be equal. One
+  may require that all samples are warped with the same warping
+  function, or one may allow individual warpings for all samples.
+}
 \usage{
 ptw(ref, samp, selected.traces,
     init.coef = c(0, 1, 0), try = FALSE,
     warp.type = c("individual", "global"),
     optim.crit = c("WCC", "RMS"),
+    mode = c("forward", "backward"),
     smooth.param = ifelse(try, 0, 1e05),
     trwdth = 20, trwdth.res = trwdth,
     verbose = FALSE, ...)
-pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
-       trwdth, trwdth.res, smooth.param, ...)
 \method{summary}{ptw}(object, \dots)
 \method{print}{ptw}(x, \dots)
 }
@@ -53,6 +55,14 @@ pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
     the optimal value of the alignment leads to a value of 0. For "WCC",
     this means that \code{1 - WCC} is optimized rather than \code{WCC}
     (where the optimal value equals 1)}
+  \item{mode}{either "forward" or "backward": the latter was the
+    original implementation, basically for a point i in the original
+    signal predicting the point j in the signal that would be in
+    position i in the warped signal. The interpretation of the
+    coefficients is counterintuitive. Therefore the default is
+    "forward", simply predicting the location (time) in the warped
+    signal of a particular point. Apart from possible numerical
+    optimisation issues, both warpings should give the same net result.} 
   \item{smooth.param}{smoothing parameter for smoothing the reference
     and sample when \code{optim.crit} equals \code{"RMS"}. If no
     smoothing is required, set this to 0. The default is to use
@@ -68,7 +78,14 @@ pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
   \item{...}{further arguments to optim}
   \item{x, object}{an object of class "ptw"}
 }
-\details{In the optimization mode (\code{try = FALSE}), the function
+\details{Function \code{ptw} and friends is meant for profile data,
+  where intensities have been recorded at regular time points; function
+  \code{stptw} is meant for lists of peaks, for instance obtained after
+  peak-picking the profile data. The latter option is less flexible
+  (Euclidean distance and backward warping have not been implemented)
+  but is much faster, especially for larger data sets.
+
+  In the optimization mode (\code{try = FALSE}), the function
   optimizes the warping coefficients using the chosen criterion (either
   "WCC" or "RMS"). For "RMS", the data are smoothed before the
   optimization, but the quality of the final warping is measured on the
@@ -112,7 +129,8 @@ pmwarp(ref, samp, optim.crit, init.coef, try = FALSE,
     "global"}
 }
 \seealso{
-  \code{\link{WCC}}, \code{\link{RMS}}, \code{\link{select.traces}}
+  \code{\link{WCC}}, \code{\link{RMS}}, \code{\link{select.traces}},
+  \code{\link{gaschrom}}, \code{\link{lcms}}
 }
 \references{
   Eilers, P.H.C. (2004) "Parametric Time Warping", Analytical Chemistry, \bold{76} (2), 404 -- 411.
@@ -126,34 +144,76 @@ samp <- gaschrom[16,]
 gaschrom.ptw <- ptw(ref, samp)
 summary(gaschrom.ptw)
 
-gaschrom.ptw <- ptw(ref, samp, init.coef = c(0, 1, 0, 0))
-summary(gaschrom.ptw)
+## same with sticks (peak lists)
+refst <- gaschrom.st[1]
+sampst <- gaschrom.st[16]
+gaschrom.st.ptw <- stptw(refst, sampst, trwdth = 100)
+summary(gaschrom.st.ptw)
 
 \dontrun{
+## comparison between backward and forward warping
+gaschrom.ptw <- ptw(ref, samp, init.coef = c(0, 1, 0, 0), mode = "backward")
+summary(gaschrom.ptw)
+gaschrom.ptw <- ptw(ref, samp, init.coef = c(-10, 1, 0, 0), mode = "forward")
+summary(gaschrom.ptw)
+
+## #############################
+## many samples warped on one reference
 ref <- gaschrom[1,]
 samp <- gaschrom[2:16,]
 gaschrom.ptw <- ptw(ref, samp, warp.type = "individual", verbose = TRUE,
-              optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
+                    optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
 summary(gaschrom.ptw)
 
+## "individual" warping not implemented for sticks; do separate warpings
+## instead
+refst <- gaschrom.st[1]
+sampst <- gaschrom.st[2:16]
+gaschrom.st.ptw.list <- lapply(sampst,
+                               function(smpl)
+                               stptw(refst, list(smpl), trwdth = 100))
+t(sapply(gaschrom.st.ptw.list, coef))
+
+## #############################
+## several samples on several references individually
 ref <- gaschrom[1:8,]
 samp <- gaschrom[9:16,]
 gaschrom.ptw <- ptw(ref, samp, warp.type = "individual",
-              optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
+                    optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
 summary(gaschrom.ptw)
+
+## stick version
+gaschrom.st.ptw.list <-
+  mapply(function(x, y)
+         stptw(list(x), list(y), trwdth = 100),
+         gaschrom.st[1:8], gaschrom.st[9:16],
+         SIMPLIFY = FALSE)
+t(sapply(gaschrom.st.ptw.list, coef))
 
 gaschrom.ptw <- ptw(ref, samp, warp.type = "global",
-              optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
+                    optim.crit = "WCC", init.coef = c(0, 1, 0))
 summary(gaschrom.ptw)
 
-# Example of a three-way data set
-data(lcms)
+## #############################
+## several samples on several references: one, global warping
+refst <- gaschrom.st[1:8]
+sampst <- gaschrom.st[9:16]
+gaschrom.st.ptw <- stptw(refst, sampst, trwdth=100, init.coef = c(0, 1, 0))
+summary(gaschrom.st.ptw)
+}
+
+## #############################
+## Example of a three-way data set
 # first bring all samples to the same scale
+data(lcms)
+\dontrun{
 lcms.scaled <- aperm(apply(lcms, c(1,3), 
                            function(x) x/mean(x) ), c(2,1,3))
 # add zeros to the start and end of the chromatograms
 lcms.s.z <- aperm(apply(lcms.scaled, c(1,3), 
                         function(x) padzeros(x, 250) ), c(2,1,3))
+
+
 # define a global 2nd degree warping
 warp1 <- ptw(lcms.s.z[,,2], lcms.s.z[,,3], warp.type="global")
 warp.samp <- warp1$warped.sample
@@ -171,6 +231,13 @@ plot(colSums(lcms.s.z[,,2]), type="l", ylab = "",
      main = "TIC: warped data")
 lines(colSums(warp.samp2), lty=2, col=2)
 }
+
+## ###########################
+## stick version of this warping - note that the peaks have been picked
+## from the scaled profiles. Note that here we need to take list
+## elements: every sample is a list of mz channels.
+warp1.st <- stptw(lcms.pks[[2]], lcms.pks[[3]], trwdth = 100)
+summary(warp1.st)
 }
 \author{Jan Gerretzen, Ron Wehrens}
 \keyword{manip}

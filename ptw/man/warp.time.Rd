@@ -15,5 +15,8 @@
   Bioinformatics. DOI: 10.1093/bioinformatics/btv299.}
 \author{Ron Wehrens}
 \examples{
+time <- 1:100
+## simple shift and compression
+warp.time(time, c(-10, .99))
 }
 \keyword{manip}

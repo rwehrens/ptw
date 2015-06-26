@@ -114,7 +114,11 @@ in the full-profile version of \code{ptw}, are now taken care of by
 the peak picking procedures, which are often domain-specific, and can
 therefore be much more efficient. The theory of warping sticks is
 (briefly) described in~\citet{Wehrens2015a} -- here, we concentrate on
-the \R\ code and show a more full version of the results.
+the \R\ code and show a more full version of the
+results. Unfortunately the vignette takes too long to build according
+to CRAN guidelines, so only the \LaTeX source is included: the Sweave
+source and the data files can be found on the package github site:
+\url{https://github.com/rwehrens/ptw}.
 
 \section{Forward and backward warping}
 The original version of PTW~\citep{Eilers2004} calculates for a given
@@ -168,12 +172,13 @@ occur because of a leaking column.
 Both sets are publicly available from the Metabolights 
 repository\footnote{\url{http://www.ebi.ac.uk/metabolights}} with
 identifiers MTBLS85 and MTBLS99, respectively. The raw data can easily
-be read into \R\ using the \pkg{Risa} package \citep{Gonzalez2014}.
+be read into \R\ using the \pkg{Risa} package \citep{Gonzalez2014} but
+the sets also contain the RData objects used in this vignette.
 
 %\clearpage
 
 \section{Analysis of the LC-DAD data from grapes}
-In this vignette, we will analyse a subset of the original data,
+Here we analyse a subset of the original data from MTBLS85,
 corresponding to those injections where TEA was added. Examples of
 both the elution profiles, obtained after MCR analysis, and the lists
 of peaks obtained from these profiles with a very simple peak picking
@@ -267,7 +272,7 @@ fitted.
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
- 23.685   0.072  23.793 
+ 23.852   0.044  23.930 
 \end{Soutput}
 \end{Schunk}
 
@@ -289,7 +294,7 @@ needed. Here goes:
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
-  3.737   0.004   3.746 
+  4.192   0.000   4.198 
 \end{Soutput}
 \end{Schunk}
 That is a speed increase of almost an order of magnitude -- not bad!
@@ -802,7 +807,7 @@ attached base packages:
 [6] datasets  methods   base     
 
 other attached packages:
- [1] ptw_1.9-1           lattice_0.20-29    
+ [1] ptw_1.9-9           lattice_0.20-29    
  [3] metaMS_1.2.0        CAMERA_1.22.0      
  [5] igraph_0.7.1        xcms_1.42.0        
  [7] mzR_2.0.0           Rcpp_0.11.3        

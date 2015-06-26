@@ -1,6 +1,7 @@
 \name{gaschrom}
 \docType{data}
 \alias{gaschrom}
+\alias{gaschrom.st}
 \title{16 calibration GC traces}
 \description{
   The object \code{gaschrom} contains 16 calibration GC traces, measured
@@ -15,6 +16,8 @@ data(gaschrom)
   Eilers, P.H.C. (2004) "Parametric Time Warping", Analytical Chemistry, \bold{76} (2), 404 -- 411.
 }
 \examples{
+data(gaschrom)
+
 ## the gaschrom.st object has been generated in the following way:
 \dontrun{
 pick.peaks <- function(x, span) {

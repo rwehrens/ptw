@@ -200,11 +200,13 @@ refst <- gaschrom.st[1:8]
 sampst <- gaschrom.st[9:16]
 gaschrom.st.ptw <- stptw(refst, sampst, trwdth=100, init.coef = c(0, 1, 0))
 summary(gaschrom.st.ptw)
+}
 
 ## #############################
 ## Example of a three-way data set
-data(lcms)
 # first bring all samples to the same scale
+data(lcms)
+\dontrun{
 lcms.scaled <- aperm(apply(lcms, c(1,3), 
                            function(x) x/mean(x) ), c(2,1,3))
 # add zeros to the start and end of the chromatograms

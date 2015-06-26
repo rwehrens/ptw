@@ -114,7 +114,11 @@ in the full-profile version of \code{ptw}, are now taken care of by
 the peak picking procedures, which are often domain-specific, and can
 therefore be much more efficient. The theory of warping sticks is
 (briefly) described in~\citet{Wehrens2015a} -- here, we concentrate on
-the \R\ code and show a more full version of the results.
+the \R\ code and show a more full version of the
+results. Unfortunately the vignette takes too long to build according
+to CRAN guidelines, so only the \LaTeX source is included: the Sweave
+source and the data files can be found on the package github site:
+\url{https://github.com/rwehrens/ptw}.
 
 \section{Forward and backward warping}
 The original version of PTW~\citep{Eilers2004} calculates for a given

@@ -25,3 +25,7 @@ print.ptw <- function(x, ...)
       ifelse(nsamp > 1, "samples on", "sample on"),
       nref, ifelse(nref > 1, "references.\n", "reference.\n"))
 }
+
+coef.ptw <- function(x, ...) {
+  x$warp.coef
+}

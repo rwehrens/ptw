@@ -272,7 +272,7 @@ fitted.
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
- 23.852   0.044  23.930 
+ 23.729   0.044  23.806 
 \end{Soutput}
 \end{Schunk}
 
@@ -294,7 +294,7 @@ needed. Here goes:
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
-  4.192   0.000   4.198 
+  4.213   0.000   4.217 
 \end{Soutput}
 \end{Schunk}
 That is a speed increase of almost an order of magnitude -- not bad!
@@ -324,7 +324,7 @@ easily be corrected by either more sophisticated peak picking
 algorithms or simply taking a larger time window.
 
 \begin{figure}[tb]
-  \setkeys{Gin}{width=0.45\textwidth}
+  \setkeys{Gin}{width=0.475\textwidth}
   \centering
 \includegraphics{stickPTW-010}
 \caption{Comparison of WCC values from the continuous warping (x axis)
@@ -376,9 +376,10 @@ the WCC values:
 +                     x[,"rt"] <- new.times
 +                     x}))
 > ## calculate WCC values for each sample and each ALS component
-> profWCCs <- 1-sapply(grape.warped.peaks,
-+                      function(x) 
-+                        mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
+> profWCCs <-
++   1-sapply(grape.warped.peaks,
++            function(x) 
++              mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
 > ## and the result is:
 > mean(profWCCs)
 \end{Sinput}
@@ -457,8 +458,9 @@ the samples.
 > QC.tics <- All.tics[QC.idx]
 > ## divide the peak tables for all files into bins of size 1
 > mzbins <- lapply(QC.pks, pktab2mzchannel, massDigits = 0)
-> ## which bins occur in more than half of the files, more than 13 times?
-> allmasses <- table(unlist(lapply(mzbins, function(x) unique(names(x)))))
+> ## which bins occur in more than half of the files?
+> allmasses <- 
++   table(unlist(lapply(mzbins, function(x) unique(names(x)))))
 > mymasses <- as.numeric(names(allmasses[allmasses > 13]))
 > length(mymasses)
 \end{Sinput}
@@ -469,7 +471,8 @@ the samples.
 \begin{Schunk}
 \begin{Sinput}
 > ## now we can divide the peak tables again, focusing on these masses only 
-> QC.mzlist <- lapply(QC.pks, pktab2mzchannel, masses = mymasses, massDigits = 0)
+> QC.mzlist <- lapply(QC.pks, pktab2mzchannel, 
++                     masses = mymasses, massDigits = 0)
 \end{Sinput}
 \end{Schunk}
 The result is a nested list: for each of the 27 samples, 688
@@ -481,9 +484,10 @@ Let us define the first QC sample as the reference sample, and
 calculate warping functions for all 26 other samples:
 \begin{Schunk}
 \begin{Sinput}
-> QCwarpings <- lapply(2:length(QC.mzlist),
-+                      function(ii)
-+                        stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
+> QCwarpings <- 
++   lapply(2:length(QC.mzlist),
++          function(ii)
++            stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
 \end{Sinput}
 \end{Schunk}
 This step does take some time, so to prevent unnecessary waiting
@@ -508,7 +512,9 @@ we concentrate on the middle part of the chromatogram, between 800 and
 +   sapply(seq(along = QC.tics),
 +          function(ii) {
 +            if (ii == 1) {
-+              approx(QC.tics[[ii]]$scantime, QC.tics[[ii]]$tic, tictimes)$y
++              approx(QC.tics[[ii]]$scantime, 
++                     QC.tics[[ii]]$tic, 
++                     tictimes)$y
 +            } else {
 +              new.times <- warp.time(QC.tics[[ii]]$scantime, 
 +                                     QCwarpings[[ii-1]]$warp.coef)

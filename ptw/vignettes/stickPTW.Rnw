@@ -114,7 +114,11 @@ in the full-profile version of \code{ptw}, are now taken care of by
 the peak picking procedures, which are often domain-specific, and can
 therefore be much more efficient. The theory of warping sticks is
 (briefly) described in~\citet{Wehrens2015a} -- here, we concentrate on
-the \R\ code and show a more full version of the results.
+the \R\ code and show a more full version of the
+results. Unfortunately the vignette takes too long to build according
+to CRAN guidelines, so only the \LaTeX source is included: the Sweave
+source and the data files can be found on the package github site:
+\url{https://github.com/rwehrens/ptw}.
 
 \section{Forward and backward warping}
 The original version of PTW~\citep{Eilers2004} calculates for a given
@@ -168,12 +172,13 @@ occur because of a leaking column.
 Both sets are publicly available from the Metabolights 
 repository\footnote{\url{http://www.ebi.ac.uk/metabolights}} with
 identifiers MTBLS85 and MTBLS99, respectively. The raw data can easily
-be read into \R\ using the \pkg{Risa} package \citep{Gonzalez2014}.
+be read into \R\ using the \pkg{Risa} package \citep{Gonzalez2014} but
+the sets also contain the RData objects used in this vignette.
 
 %\clearpage
 
 \section{Analysis of the LC-DAD data from grapes}
-In this vignette, we will analyse a subset of the original data,
+Here we analyse a subset of the original data from MTBLS85,
 corresponding to those injections where TEA was added. Examples of
 both the elution profiles, obtained after MCR analysis, and the lists
 of peaks obtained from these profiles with a very simple peak picking
@@ -267,7 +272,7 @@ fitted.
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
- 23.685   0.072  23.793 
+ 23.729   0.044  23.806 
 \end{Soutput}
 \end{Schunk}
 
@@ -289,7 +294,7 @@ needed. Here goes:
 \end{Sinput}
 \begin{Soutput}
    user  system elapsed 
-  3.737   0.004   3.746 
+  4.213   0.000   4.217 
 \end{Soutput}
 \end{Schunk}
 That is a speed increase of almost an order of magnitude -- not bad!
@@ -319,7 +324,7 @@ easily be corrected by either more sophisticated peak picking
 algorithms or simply taking a larger time window.
 
 \begin{figure}[tb]
-  \setkeys{Gin}{width=0.45\textwidth}
+  \setkeys{Gin}{width=0.475\textwidth}
   \centering
 \includegraphics{stickPTW-010}
 \caption{Comparison of WCC values from the continuous warping (x axis)
@@ -371,9 +376,10 @@ the WCC values:
 +                     x[,"rt"] <- new.times
 +                     x}))
 > ## calculate WCC values for each sample and each ALS component
-> profWCCs <- 1-sapply(grape.warped.peaks,
-+                      function(x) 
-+                        mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
+> profWCCs <-
++   1-sapply(grape.warped.peaks,
++            function(x) 
++              mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
 > ## and the result is:
 > mean(profWCCs)
 \end{Sinput}
@@ -452,8 +458,9 @@ the samples.
 > QC.tics <- All.tics[QC.idx]
 > ## divide the peak tables for all files into bins of size 1
 > mzbins <- lapply(QC.pks, pktab2mzchannel, massDigits = 0)
-> ## which bins occur in more than half of the files, more than 13 times?
-> allmasses <- table(unlist(lapply(mzbins, function(x) unique(names(x)))))
+> ## which bins occur in more than half of the files?
+> allmasses <- 
++   table(unlist(lapply(mzbins, function(x) unique(names(x)))))
 > mymasses <- as.numeric(names(allmasses[allmasses > 13]))
 > length(mymasses)
 \end{Sinput}
@@ -464,7 +471,8 @@ the samples.
 \begin{Schunk}
 \begin{Sinput}
 > ## now we can divide the peak tables again, focusing on these masses only 
-> QC.mzlist <- lapply(QC.pks, pktab2mzchannel, masses = mymasses, massDigits = 0)
+> QC.mzlist <- lapply(QC.pks, pktab2mzchannel, 
++                     masses = mymasses, massDigits = 0)
 \end{Sinput}
 \end{Schunk}
 The result is a nested list: for each of the 27 samples, 688
@@ -476,9 +484,10 @@ Let us define the first QC sample as the reference sample, and
 calculate warping functions for all 26 other samples:
 \begin{Schunk}
 \begin{Sinput}
-> QCwarpings <- lapply(2:length(QC.mzlist),
-+                      function(ii)
-+                        stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
+> QCwarpings <- 
++   lapply(2:length(QC.mzlist),
++          function(ii)
++            stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
 \end{Sinput}
 \end{Schunk}
 This step does take some time, so to prevent unnecessary waiting
@@ -503,7 +512,9 @@ we concentrate on the middle part of the chromatogram, between 800 and
 +   sapply(seq(along = QC.tics),
 +          function(ii) {
 +            if (ii == 1) {
-+              approx(QC.tics[[ii]]$scantime, QC.tics[[ii]]$tic, tictimes)$y
++              approx(QC.tics[[ii]]$scantime, 
++                     QC.tics[[ii]]$tic, 
++                     tictimes)$y
 +            } else {
 +              new.times <- warp.time(QC.tics[[ii]]$scantime, 
 +                                     QCwarpings[[ii-1]]$warp.coef)
@@ -802,7 +813,7 @@ attached base packages:
 [6] datasets  methods   base     
 
 other attached packages:
- [1] ptw_1.9-1           lattice_0.20-29    
+ [1] ptw_1.9-9           lattice_0.20-29    
  [3] metaMS_1.2.0        CAMERA_1.22.0      
  [5] igraph_0.7.1        xcms_1.42.0        
  [7] mzR_2.0.0           Rcpp_0.11.3        

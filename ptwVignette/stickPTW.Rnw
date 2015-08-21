@@ -498,7 +498,7 @@ show the deviations in retention times more clearly, the TICs are
 shown for each class of apples separately, in order of injection. Note
 how different the peaks in the standard mixture (at the top of the
 figure) are, compared to the apple data.
-\begin{figure}[Htb]
+\begin{figure}[tb]
 \centering
 \setkeys{Gin}{width=.9\textwidth}
 <<fig=TRUE,echo=FALSE,height=6,width=10>>=

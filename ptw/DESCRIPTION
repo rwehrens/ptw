@@ -1,7 +1,7 @@
 Package: ptw
 Type: Package
 Title: Parametric Time Warping
-Version: 1.9-9
+Version: 1.9-11
 Author: Jan Gerretzen <j.gerretzen@science.ru.nl>, Paul Eilers
         <p.eilers@erasmusmc.nl>, Hans Wouters, Tom Bloemberg
         <t.bloemberg@science.ru.nl>, Ron Wehrens <ron.wehrens@gmail.com>
@@ -14,6 +14,7 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
         references. One can choose between calculating individual
         warpings, or one global warping for a set of samples and one
         reference. Two optimization criteria are implemented: RMS (Root
-        Mean Square error) and WCC (Weighted Cross Correlation).
+        Mean Square error) and WCC (Weighted Cross Correlation). Both
+	warping of peak profiles and of peak lists are supported.
 License: GPL (>= 2)
-Imports: nloptr
+Imports: nloptr, graphics, grDevices, stats

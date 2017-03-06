@@ -16,14 +16,14 @@ wcc.st <- function(pat1, pat2, trwidth, acors1 = NULL, acors2 = NULL) {
             as.integer(np1),
             as.double(trwidth),
             WAC = as.double(WAC),
-            package = "ptw")$WAC
+            PACKAGE = "ptw")$WAC
   if (is.null(acors2))
       acors2 <- .C("st_WAC",
             as.double(p2),
             as.integer(np2),
             as.double(trwidth),
             WAC = as.double(WAC),
-            package = "ptw")$WAC
+            PACKAGE = "ptw")$WAC
   res <- .C("st_WCC",
             as.double(p1),
             as.integer(np1),
@@ -31,7 +31,7 @@ wcc.st <- function(pat1, pat2, trwidth, acors1 = NULL, acors2 = NULL) {
             as.integer(np2),
             as.double(trwidth),
             WCC = as.double(WCC),
-            package = "ptw")$WCC
+            PACKAGE = "ptw")$WCC
   
   res / (acors1*acors2)
 }
@@ -46,7 +46,7 @@ wac.st <- function(pat1, trwidth) {
      as.integer(np1),
      as.double(trwidth),
      WAC = as.double(WAC),
-     package = "ptw")$WAC
+     PACKAGE = "ptw")$WAC
 }
 
 

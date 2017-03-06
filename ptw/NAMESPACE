@@ -19,4 +19,4 @@ S3method(print, stptw)
 S3method(summary, stptw)
 S3method(plot, stptw)
 
-useDynLib(ptw)
+useDynLib(ptw, .registration=TRUE)

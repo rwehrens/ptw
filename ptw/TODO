@@ -1,5 +1,4 @@
 - complete example for warp.time
 - add stptw info to ptw man page
-- check predict.ptw: does it work for both backward and forward warping?
 - complete example for stptw
 - check examples voor plot.ptw, summary.ptw etc

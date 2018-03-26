@@ -1,11 +1,3 @@
-## Paril 1 :-), 2011 (RW)
-## First working version of predict.ptw.
-
-## Eventually this function should also allow the prediction with a
-## different set of warping coefficients, but we'll leave that for now.
-## The way to do it is to create a ptw object with the try=TRUE option
-## and THEN do the prediction.
-
 predict.ptw <- function(object, newdata, 
                         what = c("response", "time"),
                         RTref = NULL, ...)
@@ -38,7 +30,7 @@ predict.ptw <- function(object, newdata,
            ## do the warping
            if (object$mode == "backward") {
              t(sapply(1:nrow(newdata),
-                      function(i) ##interpol(WF[i,], newdata[i,])))
+                      function(i)
                         approx(x = 1:ncol(newdata), y = newdata[i,],
                                xout = WF[i,])$y))
            } else { # object$mode == "forward"
@@ -68,10 +60,6 @@ predict.ptw <- function(object, newdata,
              newdata <- RTref
              newdataIndices <- 1:length(RTref)
            } else {
-             ## the round statement is necessary to explicitly convert
-             ## newdataIndices to an integer value: otherwise the
-             ## interpol function later will give back an incorrect
-             ## value. Why???             
              newdataIndices <-
                  round((newdata - min(RTref)) * (length(RTref) - 1) /
                        diff(range(RTref)) + 1)
@@ -80,7 +68,5 @@ predict.ptw <- function(object, newdata,
            t(sapply(1:nrow(correctedTime),
                     function(i)
                       approx(RTref, NULL, correctedTime[i, newdataIndices])$y))
-##                    interpol(correctedTime[i, newdataIndices],
-##                             RTref)))
          })
 }

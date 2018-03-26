@@ -43,7 +43,7 @@
   \code{\link{ptw}}
 }
 \examples{
-## educational example
+## educational example, contributed by zeehio
 x1 <- c(rep(0, 5), 1,1,1, 20, 40, 20, 1, 1, 1, rep(0, 5))
 x2 <- c(rep(0, 6), 1,1,1, 20, 40, 20, 1, 1, 1, rep(0, 4))
 time <- 1:length(x1)

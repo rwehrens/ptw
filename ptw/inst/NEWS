@@ -1,5 +1,5 @@
 version 1.9-13:
-  - fixed prediction for forward warping (contribution by zeehio)
+  - fixed prediction for forward warping (contribution by Sergio Oller)
 
 version 1.9-12:
   - implementation of ptw for peak lists: stptw and associated

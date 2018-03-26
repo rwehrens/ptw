@@ -49,12 +49,13 @@ predict.ptw <- function(object, newdata,
            }
          },
          time = {
-           if (object$mode == "backward") {
-             correctedTime <- 
-               -sweep(object$warp.fun, 2, 2*(1:ncol(object$ref)), FUN = "-")
-           } else {
-             correctedTime <- object$warp.fun
-           }
+           correctedTime <-
+             switch(object$mode,
+                    backward =
+                      -sweep(object$warp.fun, 2,
+                             2*(1:ncol(object$ref)), FUN = "-"),
+                    object$warp.fun)
+           
            if (is.null(RTref)){
              if (is.null(colnames(object$ref))) {
                RTref <- 1:ncol(object$ref)

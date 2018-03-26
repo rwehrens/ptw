@@ -1,6 +1,3 @@
-## THIS FILE NEEDS THOROUGH REVISION DUE TO THE INTRODUCTION OF
-## FORWARD/BACKWARD WARPING !!!
-
 ## Paril 1 :-), 2011 (RW)
 ## First working version of predict.ptw.
 
@@ -39,13 +36,25 @@ predict.ptw <- function(object, newdata,
            }
 
            ## do the warping
-           t(sapply(1:nrow(newdata),
-                    function(i) ##interpol(WF[i,], newdata[i,])))
-                      approx(newdata[i,], NULL, WF[i,])$y))
+           if (object$mode == "backward") {
+             t(sapply(1:nrow(newdata),
+                      function(i) ##interpol(WF[i,], newdata[i,])))
+                        approx(x = 1:ncol(newdata), y = newdata[i,],
+                               xout = WF[i,])$y))
+           } else { # object$mode == "forward"
+             t(sapply(1:nrow(newdata),
+                      function(i)
+                        approx(x = WF[i,], y = newdata[i,],
+                               xout = 1:ncol(newdata))$y))
+           }
          },
          time = {
-           correctedTime <- 
-             -sweep(object$warp.fun, 2, 2*(1:ncol(object$ref)), FUN = "-")
+           if (object$mode == "backward") {
+             correctedTime <- 
+               -sweep(object$warp.fun, 2, 2*(1:ncol(object$ref)), FUN = "-")
+           } else {
+             correctedTime <- object$warp.fun
+           }
            if (is.null(RTref)){
              if (is.null(colnames(object$ref))) {
                RTref <- 1:ncol(object$ref)

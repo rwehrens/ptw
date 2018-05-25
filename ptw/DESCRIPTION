@@ -2,10 +2,13 @@ Package: ptw
 Type: Package
 Title: Parametric Time Warping
 Version: 1.9-13
-Author: Jan Gerretzen <j.gerretzen@science.ru.nl>, Paul Eilers
-        <p.eilers@erasmusmc.nl>, Hans Wouters, Tom Bloemberg
-        <t.bloemberg@science.ru.nl>, Ron Wehrens <ron.wehrens@gmail.com>
-Maintainer: Ron Wehrens <ron.wehrens@gmail.com>
+Authors@R: c(person("Jan", "Gerretzen", role = "ctb"),
+             person("Paul", "Eilers", role = "aut"),
+	     person("Hans", "Wouters", role = "ctb"),
+	     person("Tom", "Bloemberg", role = "aut",
+	            email = "t.bloemberg@science.ru.nl"),
+	     person("Ron", "Wehrens", role = c("aut", "cre"),
+	            email = "ron.wehrens@gmail.com"))
 Description: Parametric Time Warping aligns patterns, i.e. it aims to
         put corresponding features at the same locations. The algorithm
         searches for an optimal polynomial describing the warping. It

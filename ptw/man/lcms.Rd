@@ -8,15 +8,20 @@
 \description{
   The \code{lcms} data consists of a 100 x 2000 x 3 array \code{lcms}, a
   vector \code{time} of length 2000 and a vector \code{mz} of length 100. The
-  LC-MS data in the array are a subset of a larger set measured on a
-  tryptic digest of E. coli proteins. Peak picking leads to the object
-  ldms.pks (see example section).
+  LC-MS data in the array are a subset (samples 1, 2 and 5) of a larger
+  set measured on a tryptic digest of E. coli proteins (see
+  \code{source} section). Separate objects \code{mz} and \code{rt} give
+  the values for the first two axis.
+  
+  Peak picking leads to the object ldms.pks (see example section).
 }
 \usage{
 data(lcms)
 }
 \source{Nijmegen Proteomics Facility, Department of Laboratory Medicine,
-  Radboud University Nijmegen Medical Centre}
+  Radboud University Nijmegen Medical Centre. Data available (in
+  different formats) at
+  http://www.cac.science.ru.nl/research/data/ecoli/}
 \references{
   Bloemberg, T.G., et al. (2010)
   "Improved parametric time warping for Proteomics", Chemometrics and

@@ -4,7 +4,7 @@ bestref <- function(x, optim.crit = c("WCC", "RMS"),
 { 
   optim.crit <- match.arg(optim.crit)
   
-  if (class(x) == "array") {
+  if (inherits(x, "array") & length(dim(x)) == 3) {
     nsamp <- dim(x)[1]
     
     xl <- vector("list", nsamp)

@@ -18,6 +18,10 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
         warpings, or one global warping for a set of samples and one
         reference. Two optimization criteria are implemented: RMS (Root
         Mean Square error) and WCC (Weighted Cross Correlation). Both
-	warping of peak profiles and of peak lists are supported.
+	warping of peak profiles and of peak lists are supported. A
+	vignette for the latter is contained in the inst/doc directory
+	of the source package - the vignette source can be found on
+	the package github site.
+URL: https://github.com/rwehrens/ptw
 License: GPL (>= 2)
 Imports: nloptr, graphics, grDevices, stats

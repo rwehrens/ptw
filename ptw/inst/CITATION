@@ -33,6 +33,8 @@ citHeader("To cite package 'ptw' in publications use:")
                      as.person("Tom G. Bloemberg"), 
                      as.person("Paul H. C. Eilers")),
 		 year = "2015",
+                 volume = "31",
+                 pages = "3063--3065",
 		 journal = "Bioinformatics",
 		 DOI = "10.1093/bioinformatics/btv299",
                  textVersion = 'Wehrens, R. et al. (2015) "Fast parametric warping of peak lists", Bioinformatics, in press.')

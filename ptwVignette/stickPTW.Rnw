@@ -40,6 +40,11 @@
 
 \maketitle
 
+\section*{Note}
+As of November, 2019, the vignette source code is no longer
+distributed with the package but can be accessed from\\
+\url{https://github.com/rwehrens/ptw/tree/master/ptwVignette}.
+
 \section{Introduction}
 In many fields of science one can find examples where similar events
 are not occuring simultaneously. When comparing these events, one has

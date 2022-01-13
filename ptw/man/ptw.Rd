@@ -25,6 +25,10 @@ ptw(ref, samp, selected.traces,
     smooth.param = ifelse(try, 0, 1e05),
     trwdth = 20, trwdth.res = trwdth,
     verbose = FALSE, ...)
+stptw(ref, samp, init.coef = c(0, 1, 0),
+      trwdth = 20, trwdth.res = trwdth, 
+      nGlobal = ifelse(length(init.coef) > 3, 5, 0),
+      ...)
 \method{summary}{ptw}(object, \dots)
 \method{print}{ptw}(x, \dots)
 }
@@ -76,13 +80,18 @@ ptw(ref, samp, selected.traces,
     output during the optimisation, which may be useful for large data
     sets}
   \item{...}{further arguments to optim}
+  \item{nGlobal}{for stick optimisations with more than three
+    coefficients, a more powerful optimisation method is used
+    (\code{nloptr}: in such cases \code{nGlobal} indicates the number of
+    times this method is employed.}
   \item{x, object}{an object of class "ptw"}
 }
 \details{Function \code{ptw} and friends is meant for profile data,
   where intensities have been recorded at regular time points; function
   \code{stptw} is meant for lists of peaks, for instance obtained after
   peak-picking the profile data. The latter option is less flexible
-  (Euclidean distance and backward warping have not been implemented)
+  (Euclidean distance and backward warping have not been implemented,
+  and only global alignment is possible)
   but is much faster, especially for larger data sets.
 
   In the optimization mode (\code{try = FALSE}), the function
@@ -122,7 +131,7 @@ ptw(ref, samp, selected.traces,
   \item{sample}{the sample(s) used as input}
   \item{warped.sample}{the warped sample}
   \item{warp.coef}{the warping coefficients}
-  \item{warp.fun}{the warped indices}
+  \item{warp.fun}{the warped indices (not for \code{stptw})}
   \item{crit.value}{the value of the chosen criterion, either "WCC" or "RMS"}
   \item{optim.crit}{the chosen criterion, either "WCC" or "RMS"}
   \item{warp.type}{the chosen type of warping, either "individual" or

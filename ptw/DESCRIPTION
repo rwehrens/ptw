@@ -24,4 +24,4 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
 	the package github site.
 URL: https://github.com/rwehrens/ptw
 License: GPL (>= 2)
-Imports: nloptr, graphics, grDevices, stats
+Imports: GA, graphics, grDevices, stats

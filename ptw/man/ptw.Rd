@@ -170,68 +170,72 @@ summary(gaschrom.ptw)
 ## many samples warped on one reference
 ref <- gaschrom[1,]
 samp <- gaschrom[2:16,]
-gaschrom.ptw <- ptw(ref, samp, warp.type = "individual", verbose = TRUE,
-                    optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
+gaschrom.ptw <-
+  ptw(ref, samp, warp.type = "individual", verbose = TRUE,
+      optim.crit = "WCC",  trwdth = 100, init.coef = c(0, 1, 0, 0))
 summary(gaschrom.ptw)
 
 ## "individual" warping not implemented for sticks; do separate warpings
 ## instead
 refst <- gaschrom.st[1]
 sampst <- gaschrom.st[2:16]
-gaschrom.st.ptw.list <- lapply(sampst,
-                               function(smpl)
-                               stptw(refst, list(smpl), trwdth = 100))
-t(sapply(gaschrom.st.ptw.list, coef))
+gaschrom.st.ptw.list <-
+  lapply(sampst,
+         function(smpl)
+           stptw(refst, list(smpl), trwdth = 100, init.coef = c(0, 1, 0, 0)))
+t(sapply(gaschrom.st.ptw.list,  "[[", "warp.coef"))
+t(sapply(gaschrom.st.ptw.list,  "[[", "crit.value"))
 
 ## #############################
 ## several samples on several references individually
 ref <- gaschrom[1:8,]
 samp <- gaschrom[9:16,]
-gaschrom.ptw <- ptw(ref, samp, warp.type = "individual",
-                    optim.crit = "RMS", init.coef = c(0, 1, 0, 0))
+gaschrom.ptw <-
+  ptw(ref, samp, warp.type = "individual",
+      optim.crit = "WCC", trwdth = 100, init.coef = c(0, 1, 0, 0))
 summary(gaschrom.ptw)
 
 ## stick version
 gaschrom.st.ptw.list <-
   mapply(function(x, y)
-         stptw(list(x), list(y), trwdth = 100),
+         stptw(list(x), list(y), trwdth = 100, init.coef = c(0, 1, 0, 0)),
          gaschrom.st[1:8], gaschrom.st[9:16],
          SIMPLIFY = FALSE)
 t(sapply(gaschrom.st.ptw.list, coef))
 
+## #############################
+## several samples on several references: one, global warping
 gaschrom.ptw <- ptw(ref, samp, warp.type = "global",
                     optim.crit = "WCC", init.coef = c(0, 1, 0))
 summary(gaschrom.ptw)
 
-## #############################
-## several samples on several references: one, global warping
 refst <- gaschrom.st[1:8]
 sampst <- gaschrom.st[9:16]
 gaschrom.st.ptw <- stptw(refst, sampst, trwdth=100, init.coef = c(0, 1, 0))
 summary(gaschrom.st.ptw)
-}
 
-## #############################
-## Example of a three-way data set
-# first bring all samples to the same scale
+## #################################################################
+## Example of a three-way data set#
+## #################################################################
+
+## first bring all samples to the same scale
 data(lcms)
-\dontrun{
 lcms.scaled <- aperm(apply(lcms, c(1,3), 
                            function(x) x/mean(x) ), c(2,1,3))
-# add zeros to the start and end of the chromatograms
+## add zeros to the start and end of the chromatograms
 lcms.s.z <- aperm(apply(lcms.scaled, c(1,3), 
                         function(x) padzeros(x, 250) ), c(2,1,3))
 
 
-# define a global 2nd degree warping
+## define a global 2nd degree warping
 warp1 <- ptw(lcms.s.z[,,2], lcms.s.z[,,3], warp.type="global")
 warp.samp <- warp1$warped.sample
 warp.samp[is.na(warp.samp)] <- 0
-# refine by adding 5th degree warpings for individual chromatograms
+## refine by adding 5th degree warpings for individual chromatograms
 warp2 <- ptw(lcms.s.z[,,2], warp.samp, init.coef=c(0,1,0,0,0,0))
 warp.samp2 <- warp2$warped.sample
 warp.samp2[is.na(warp.samp2)] <- 0
-# compare TICs
+## compare TICs
 layout(matrix(1:2,2,1, byrow=TRUE))
 plot(colSums(lcms.s.z[,,2]), type="l", ylab = "",
      main = "TIC: original data")
@@ -239,7 +243,6 @@ lines(colSums(lcms.s.z[,,3]), col=2, lty=2)
 plot(colSums(lcms.s.z[,,2]), type="l", ylab = "",
      main = "TIC: warped data")
 lines(colSums(warp.samp2), lty=2, col=2)
-}
 
 ## ###########################
 ## stick version of this warping - note that the peaks have been picked
@@ -247,6 +250,7 @@ lines(colSums(warp.samp2), lty=2, col=2)
 ## elements: every sample is a list of mz channels.
 warp1.st <- stptw(lcms.pks[[2]], lcms.pks[[3]], trwdth = 100)
 summary(warp1.st)
+}
 }
 \author{Jan Gerretzen, Ron Wehrens}
 \keyword{manip}

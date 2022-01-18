@@ -1,7 +1,8 @@
 importFrom("stats", "approx", "coef", "sd", "dist", "embed", "runmed", "optim")
 importFrom("graphics", "matplot", "matlines", "legend", "abline", "par", "lines", "plot")
 importFrom("grDevices", "rainbow")
-importFrom("nloptr", "nloptr")
+## importFrom("nloptr", "nloptr")
+importFrom("GA", "ga")
 
 
 ## only export functions that are meant to be called by the user

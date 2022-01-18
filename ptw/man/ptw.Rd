@@ -172,7 +172,7 @@ ref <- gaschrom[1,]
 samp <- gaschrom[2:16,]
 gaschrom.ptw <-
   ptw(ref, samp, warp.type = "individual", verbose = TRUE,
-      optim.crit = "WCC",  trwdth = 100, init.coef = c(0, 1, 0, 0))
+      optim.crit = "WCC",  trwdth = 100, init.coef = c(0, 1, 0))
 summary(gaschrom.ptw)
 
 ## "individual" warping not implemented for sticks; do separate warpings
@@ -182,7 +182,7 @@ sampst <- gaschrom.st[2:16]
 gaschrom.st.ptw.list <-
   lapply(sampst,
          function(smpl)
-           stptw(refst, list(smpl), trwdth = 100, init.coef = c(0, 1, 0, 0)))
+           stptw(refst, list(smpl), trwdth = 100, init.coef = c(0, 1, 0)))
 t(sapply(gaschrom.st.ptw.list,  "[[", "warp.coef"))
 t(sapply(gaschrom.st.ptw.list,  "[[", "crit.value"))
 
@@ -192,13 +192,13 @@ ref <- gaschrom[1:8,]
 samp <- gaschrom[9:16,]
 gaschrom.ptw <-
   ptw(ref, samp, warp.type = "individual",
-      optim.crit = "WCC", trwdth = 100, init.coef = c(0, 1, 0, 0))
+      optim.crit = "WCC", trwdth = 100, init.coef = c(0, 1, 0))
 summary(gaschrom.ptw)
 
 ## stick version
 gaschrom.st.ptw.list <-
   mapply(function(x, y)
-         stptw(list(x), list(y), trwdth = 100, init.coef = c(0, 1, 0, 0)),
+         stptw(list(x), list(y), trwdth = 100, init.coef = c(0, 1, 0)),
          gaschrom.st[1:8], gaschrom.st[9:16],
          SIMPLIFY = FALSE)
 t(sapply(gaschrom.st.ptw.list, coef))

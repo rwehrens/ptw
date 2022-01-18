@@ -78,6 +78,8 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
   if (!try) {
     ref.acors <- sapply(ref, wac.st, trwdth)
     if (nGlobal > 0) {
+      ## do several runs with a global optimizer
+      
 ### Following lines were removed because nloptr wasmoved to the R
 ### archive - support no longer guaranteed. 
       ## NLOpt <- lapply(1:nGlobal,
@@ -90,33 +92,25 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
       ##                        ref.acors = ref.acors))
       ## wccs <- sapply(NLOpt, "[[", "objective")
       ## a <- NLOpt[[which.min(wccs)]]$solution
-      invSTWCC <- function(...) -1*STWCC(...)
       GASol <- lapply(1:nGlobal,
                       function(ii)
-                        ga(type = "real-valued",
-                           fitness = invSTWCC, monitor = FALSE,
-                           maxiter = 1000, run = 100,
-                           pmutation = .2, popSize = 100,
-                           lower = rep(-1e+05, n),
-                           upper = rep(1e+05, n),
-                           refList = ref, sampList = samp, trwdth = trwdth, 
-                           ref.acors = ref.acors))
-      localSol <-
-        lapply(GASol,
-               function(xxx)
-                 optim(xxx@solution, ptw:::STWCC, NULL,
-                       ref, samp, trwdth = trwdth, 
-                       ref.acors = ref.acors, ...))
-      wccs <- sapply(localSol, function(xxx) xxx$value)
+                        DEoptim(ptw:::STWCC,
+                                lower = rep(-1e+05, n), upper = rep(1e+05, n),
+                                refList = ref, sampList = samp,
+                                trwdth = trwdth, ref.acors = ref.acors,
+                                control = list(strategy = 2, itermax = 2000,
+                                               VTR = 0, trace = FALSE,
+                                               NP = 100)))
+      wccs <- sapply(GASol, function(xxx) xxx$optim$bestval)
         
-      Opt <- localSol[[which.min(wccs)]]
-    } else {
-      Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth,
-                   ref.acors = ref.acors, ...)
+      a <- GASol[[which.min(wccs)]]$optim$bestmem
     }
-      
-    a <- c(Opt$par)
+    
+    Opt <- optim(a, STWCC, NULL, ref, samp, trwdth = trwdth,
+                 ref.acors = ref.acors, ...)
   }
+      
+  a <- c(Opt$par)
 
   if (!missing(trwdth.res)) {
     ref.acors <- sapply(ref, wac.st, trwdth.res)

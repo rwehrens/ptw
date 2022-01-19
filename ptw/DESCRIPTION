@@ -1,7 +1,7 @@
 Package: ptw
 Type: Package
 Title: Parametric Time Warping
-Version: 1.9-16
+Version: 1.9-17
 Authors@R: c(person("Jan", "Gerretzen", role = "ctb"),
              person("Paul", "Eilers", role = "aut"),
 	     person("Hans", "Wouters", role = "ctb"),

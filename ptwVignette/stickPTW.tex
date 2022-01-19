@@ -1,11 +1,61 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt]{article}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
 %\VignetteIndexEntry{StickPTW}
 
 \usepackage{natbib}
 \usepackage{geometry}
 \usepackage{layout}
 \usepackage{url}
-\usepackage{Sweave}
+
 
 %% \geometry{
 %%   includeheadfoot,
@@ -35,10 +85,14 @@
 
 \title{Parametric time warping of peaks with the ptw package}
 \author{Ron Wehrens \and Tom Bloemberg \and Paul Eilers}
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 \maketitle
+
+
+
+
 
 \section*{Note}
 As of November, 2019, the vignette source code is no longer
@@ -174,6 +228,8 @@ sticks on much larger data sets and on sets containing different classes.
 Here, particularly severe deviations of retention times
 occur because of a leaking column. 
 
+
+
 Both sets are publicly available from the Metabolights 
 repository\footnote{\url{http://www.ebi.ac.uk/metabolights}} with
 identifiers MTBLS85 and MTBLS99, respectively. The raw data can easily
@@ -184,21 +240,31 @@ the sets also contain the RData objects used in this vignette.
 
 \section{Analysis of the LC-DAD data from grapes}
 Here we analyse a subset of the original data from MTBLS85,
-corresponding to those injections where TEA was added. Examples of
+corresponding to those injections where TEA was added. The data are
+present in the directory containing the vignette code, and can be
+loaded with the following code:
+
+
+
+\noindent
+Examples of
 both the elution profiles, obtained after MCR analysis, and the lists
 of peaks obtained from these profiles with a very simple peak picking
-procedure, are shown in Figure~\ref{fig:dadProfiles}. 
+procedure, are shown in Figure~\ref{fig:dadProfiles}. Note that some
+less important peaks are missed, in particular peaks near the edges of
+the retention time range, and shoulder peaks.
+
 \begin{figure}[tb]
-  \setkeys{Gin}{width=\textwidth}
-  \centering
-\includegraphics{stickPTW-003}
+\centering
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=.9\textwidth]{figure/dadProfiles-1} 
+\end{knitrout}
 \caption{Some elution profiles from the first sample in the grape data set
   (blue continuous lines). Peaks, obtained after peak picking with a
   very simple algorithm, are indicated with red vertical lines.}
 \label{fig:dadProfiles}
 \end{figure}
-Note that some less important peaks are missed, in particular peaks
-near the edges of the retention time range, and shoulder peaks. 
 
 The data are available in two objects, \code{grape.peaks} and
 \code{grape.profiles}, both
@@ -209,11 +275,11 @@ retention time and intensity), and the second contains the elution
 profiles for each of the components at all time points. As an example, 
 the number of peaks in each sample/component combination can be assessed
 by the following command:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > sapply(grape.peaks, function(x) sapply(x, nrow))[1:8, 1:7]
-\end{Sinput}
-\begin{Soutput}
      Tday00a Tday00b Tday01 Tday03 Tday04 Tday09 Tday10
 [1,]      13      13     15     12     13     16     13
 [2,]       9      10     10     10      7     10      6
@@ -223,9 +289,12 @@ by the following command:
 [6,]      15      16     16     15     14     16     14
 [7,]       9      11      9      7      9     12      8
 [8,]       6      11      8      6      8      8      8
-\end{Soutput}
-\end{Schunk}
-where for reasons of space we restrict the output to the first eight
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
+For reasons of space we restrict the output to the first eight
 components and the first seven samples. Clearly, there is some 
 difference in the number of peaks, not only for each component, but
 also over time.
@@ -235,20 +304,23 @@ the different samples reveals that there are some differences in
 retention times. Component 2, for instance, has few peaks and
 therefore is easy to inspect -- the next code shows the retention time
 of the largest feature in this component across all samples:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > sapply(grape.peaks, function(x) {
 +   big.idx <- which.max(x[[2]][,"I"])
 +   as.numeric(rownames(x[[2]])[big.idx])
 + })
-\end{Sinput}
-\begin{Soutput}
-Tday00a Tday00b  Tday01  Tday03  Tday04  Tday09  Tday10 
-  10.98   10.80   10.94   10.91   10.94   10.99   10.94 
- Tday11  Tday13  Tday15  Tday17  Tday21  Tday24  Tday28 
-  10.95   11.09   10.67   10.57   10.89   10.89   10.90 
-\end{Soutput}
-\end{Schunk}
+Tday00a Tday00b  Tday01  Tday03  Tday04  Tday09  Tday10  Tday11  Tday13  Tday15 
+  10.98   10.80   10.94   10.91   10.94   10.99   10.94   10.95   11.09   10.67 
+ Tday17  Tday21  Tday24  Tday28 
+  10.57   10.89   10.89   10.90 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 Assuming that the biggest peak is actually
 the same compound in all cases, we see a maximal retention time
 difference of almost one minute.
@@ -267,20 +339,21 @@ components simultaneously, and use \code{system.time} to get an
 impression on the speed of the warping. All parameters have been kept
 to the system defaults; in particular, a quadratic warping function is
 fitted.
-\begin{Schunk}
-\begin{Sinput}
-> library(ptw)
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > system.time(grape.profwarp <- 
 +   lapply(grape.profiles[-1],
 +          function(y) ptw(t(grape.profiles[[1]]), t(y), mode = "forward",
 +                          warp.type = "global", trwdth = 40)))
-\end{Sinput}
-\begin{Soutput}
    user  system elapsed 
- 11.763   0.032  11.795 
-\end{Soutput}
-\end{Schunk}
+ 10.582   0.000  10.583 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
+\noindent
 In comparison, the warping of the peak positions is much faster --
 note that each profile contains 1,000 time points, whereas the maximal
 number of peaks in one component is less than 20. So what exactly does
@@ -290,18 +363,21 @@ call. We now use peak lists rather than lists of elution
 profiles. In stick-based warping, the only possible warping type is
 the \code{"global"} warping, so this argument is no longer
 needed. Here goes: 
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > system.time(grape.stickwarp <- 
 +   lapply(grape.peaks[-1], 
 +          function(y) 
 +            stptw(grape.peaks[[1]], y, trwdth = 40)))
-\end{Sinput}
-\begin{Soutput}
    user  system elapsed 
-  1.137   0.000   1.136 
-\end{Soutput}
-\end{Schunk}
+   1.29    0.00    1.29 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 That is a speed increase of almost an order of magnitude -- not bad!
 
 How good is the agreement between the two types of warping? First of
@@ -309,10 +385,13 @@ all, we can look at the warped profiles, and the positions of the
 warped peaks. The same components as seen in
 Figure~\ref{fig:dadProfiles}, but now for the last sample in the
 sequence, are shown in Figure~\ref{fig:warpedProfiles}.
+
 \begin{figure}[tb]
-  \centering
-    \setkeys{Gin}{width=.95\textwidth}
-\includegraphics{stickPTW-009}
+\centering
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=.9\textwidth]{figure/warpedProfiles-1} 
+\end{knitrout}
 \caption{Warped elution profiles and peak positions from the last
   sample; the figure shows the same components as those in
   Figure~\protect\ref{fig:dadProfiles}. Profiles in gray show the
@@ -320,6 +399,7 @@ sequence, are shown in Figure~\ref{fig:warpedProfiles}.
   warping. Red vertical segments show sticks after warping.}
 \label{fig:warpedProfiles}
 \end{figure}
+
 The agreement between the peaks in the blue warped profiles and the
 warped peaks, shown in red, is excellent. There is one case, in
 component 4, where a major peak is not picked because it is too close
@@ -329,13 +409,16 @@ easily be corrected by either more sophisticated peak picking
 algorithms or simply taking a larger time window.
 
 \begin{figure}[tb]
-  \setkeys{Gin}{width=0.475\textwidth}
   \centering
-\includegraphics{stickPTW-010}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=.55\textwidth]{figure/wccComparison-1} 
+\end{knitrout}
 \caption{Comparison of WCC values from the continuous warping (x axis)
 and stick warping (y axis) of the grape DAD data.}
 \label{fig:wccComparison}
 \end{figure}
+
 Apart from the agreement between warped profiles and peak positions,
 one can also inspect the warping objects to see if both warpings lead
 to the same result. The values of the WCC quality criterion for
@@ -348,17 +431,21 @@ areas in which there is no or very little signal, which positively
 contributes to the evaluation criterion.
 
 Luckily, we can use one of the big advantages of parametric time
-warping here, viz. the existance of an explicit warping function. This
+warping here, \emph{viz.}, the existance of an explicit warping
+function. This 
 means we can directly warp the continuous profiles using the warping
 function obtained from the sticks. The result can then be compared
 with the result of the warping of the continuous profiles. In
 Figure~\ref{fig:warpComparison} this is done, with the warping
 functions of the continuous data on the left, and those of the sticks
 on the right. Clearly, both sets of warping functions are extremely similar.
+
 \begin{figure}[bt]
   \centering
-  \setkeys{Gin}{width=\textwidth}
-\includegraphics{stickPTW-011}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=\textwidth]{figure/warpComparison-1} 
+\end{knitrout}
 \caption{Grape DAD data: the 13 warping functions for continuous data
   (left) and sticks (right) -- the first of the 14 samples is taken as
   the reference. The $x$ axis presents the time, and the
@@ -366,10 +453,13 @@ on the right. Clearly, both sets of warping functions are extremely similar.
   indicates a shift to the right.}
 \label{fig:warpComparison}
 \end{figure}
+
 We can warp the peaks with both sets of warping functions, and compare
 the WCC values:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > ## warp peaks according to continuous warping functions
 > grape.warped.peaks <- 
 +   lapply(2:length(grape.peaks),
@@ -380,25 +470,30 @@ the WCC values:
 +                                            t(grape.profwarp[[ii-1]]$warp.coef))
 +                     x[,"rt"] <- new.times
 +                     x}))
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > ## calculate WCC values for each sample and each ALS component
 > profWCCs <-
 +   1-sapply(grape.warped.peaks,
 +            function(x) 
 +              mapply(wcc.st, x, pat2 = grape.peaks[[1]], trwidth = 40))
+> 
 > ## and the result is:
 > mean(profWCCs)
-\end{Sinput}
-\begin{Soutput}
 [1] 0.1699119
-\end{Soutput}
-\begin{Sinput}
 > ## compare that to the WCC value obtained in the stick warping:
 > mean(sapply(grape.stickwarp, "[[", "crit.value"))
-\end{Sinput}
-\begin{Soutput}
 [1] 0.1639269
-\end{Soutput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 They are virtually equal, indicating that warping the profiles gives
 the same result as warping the peaks, the latter, of course, being
 much faster.
@@ -436,10 +531,13 @@ show the deviations in retention times more clearly, the TICs are
 shown for each class of apples separately, in order of injection. Note
 how different the peaks in the standard mixture (at the top of the
 figure) are, compared to the apple data.
+
 \begin{figure}[tb]
 \centering
-\setkeys{Gin}{width=.9\textwidth}
-\includegraphics{stickPTW-013}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=\textwidth]{figure/tics-1} 
+\end{knitrout}
 \caption{TICs of the LC-MS data -- intensities increase from white to
   brown to yellow to green. Injection
   classes are shown separately to show the gradual increase in
@@ -456,11 +554,14 @@ covering the complete injection sequence. First we load the data, and
 define bins of $1$ Dalton (i.e., very broad bins) in which peaks are
 grouped. We only retain those bins containing peaks for at least half
 the samples.
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > QC.idx <- which(metaInf$Variety == "QC")
 > QC.pks <- All.pks[QC.idx]
 > QC.tics <- All.tics[QC.idx]
+> 
 > ## divide the peak tables for all files into bins of size 1
 > mzbins <- lapply(QC.pks, pktab2mzchannel, massDigits = 0)
 > ## which bins occur in more than half of the files?
@@ -468,18 +569,15 @@ the samples.
 +   table(unlist(lapply(mzbins, function(x) unique(names(x)))))
 > mymasses <- as.numeric(names(allmasses[allmasses > 13]))
 > length(mymasses)
-\end{Sinput}
-\begin{Soutput}
 [1] 698
-\end{Soutput}
-\end{Schunk}
-\begin{Schunk}
-\begin{Sinput}
 > ## now we can divide the peak tables again, focusing on these masses only 
 > QC.mzlist <- lapply(QC.pks, pktab2mzchannel, 
 +                     masses = mymasses, massDigits = 0)
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 The result is a nested list: for each of the 27 samples, 688
 \emph{m/z} bins are considered in defining a warping
 function. Clearly, this is much more challenging than the 14 DAD
@@ -487,31 +585,42 @@ samples with 14 components.
 
 Let us define the first QC sample as the reference sample, and
 calculate warping functions for all 26 other samples:
-\begin{Schunk}
-\begin{Sinput}
-> QCwarpings <- 
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
+> QCwarpings <-
 +   lapply(2:length(QC.mzlist),
 +          function(ii)
 +            stptw(QC.mzlist[[1]], QC.mzlist[[ii]], trwdth = 50))
-\end{Sinput}
-\end{Schunk}
-This step does take some time, so to prevent unnecessary waiting
-during the development of this vignette, we cheat and save
-intermediate results for later re-use.
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
+This step may take some time.
 
 We can visualize the effect of the warping by applying it to the
 (continuous) total ion chromatogram (TIC) data, summarizing for
 every time point the total amount of signal across all masses. Here,
 we concentrate on the middle part of the chromatogram, between 800 and
 2000 seconds:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > ## create a matrix of tic signals from the individual vectors of the
 > ## samples - these are not measured at exactly the same times, so we
 > ## use interpolation, one value for each second.
 > QCticmat <- sapply(QC.tics, 
 +                    function(x) 
 +                      approx(x$scantime, x$tic, tictimes)$y)
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > ## Now do the same, but apply the warping to the scantimes
 > QCticmat2 <- 
 +   sapply(seq(along = QC.tics),
@@ -525,18 +634,24 @@ we concentrate on the middle part of the chromatogram, between 800 and
 +                                     QCwarpings[[ii-1]]$warp.coef)
 +              approx(new.times, QC.tics[[ii]]$tic, tictimes)$y
 +            }})
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
 \begin{figure}[tb]
   \centering
-  \setkeys{Gin}{width=\textwidth}
-\includegraphics{stickPTW-019}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=\textwidth]{figure/warpedQCTICs-1} 
+\end{knitrout}
 \caption{Original TICs of the apple QC samples (left), and TICS warped
   according to the warping functions from the peak lists
   (right). The injection order of the samples is from the bottom to
   the top.}
 \label{fig:warpedQCTICs}
 \end{figure}
+
+\noindent
 The result is shown in Figure~\ref{fig:warpedQCTICs}. The left figure
 clearly shows that peaks elute at later times in later QC samples,
 whereas this trend is absent in the right figure, showing the
@@ -565,8 +680,10 @@ warped according to the warping functions found in the QC warping,
 through a simple process of linear interpolation between the QCs. We
 can calculate warped retention times for the QC warpings and then
 interpolate, or directly interpolate the warping coefficients:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > interpolate.warping <- function(rt, coef1, coef2, idx, 
 +                                 type = c("coef", "time")) { 
 +   weights <- abs(idx[2:3] - idx[1]) / diff(idx[2:3])
@@ -581,17 +698,22 @@ interpolate, or directly interpolate the warping coefficients:
 +     warp.time(rt, coefs[,1])
 +   }
 + }
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
+\noindent
 First we define the relevant QCs for each of the real samples:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > ## sort on injection order
 > inj.order <- order(metaInf$InjectionNr)
 > metaInf <- metaInf[inj.order,]
 > All.pks <- All.pks[inj.order]
 > All.tics <- All.tics[inj.order]
+> 
 > ## pick out only the apple samples
 > sample.idx <- which(!(metaInf$Variety %in% c("QC", "STDmix")))
 > QC.idx <- which(metaInf$Variety == "QC")
@@ -600,11 +722,8 @@ First we define the relevant QCs for each of the real samples:
 +                            function(x) {
 +                              c(x, 
 +                                max(QC.idx[QC.idx < x]),
-+                                min(QC.idx[QC.idx > x]))
-+                            }))
++                                min(QC.idx[QC.idx > x]))}))
 > head(neighbours.idx, 9)
-\end{Sinput}
-\begin{Soutput}
       [,1] [,2] [,3]
  [1,]    7    5   14
  [2,]    8    5   14
@@ -615,18 +734,21 @@ First we define the relevant QCs for each of the real samples:
  [7,]   13    5   14
  [8,]   15   14   21
  [9,]   16   14   21
-\end{Soutput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 So now we know what warpings to use for each of the sample. For
 example, let's look at the fifth sample, injected at position 12. This
 is flanked by the fourth and fifth QC samples, at positions 5 and 14:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > relevant.warpings <- which(QC.idx %in% c(5, 14)) - 1
 > ## Original data:
 > head(All.pks[[12]][,c("mz", "rt", "maxo", "sn")])
-\end{Sinput}
-\begin{Soutput}
            mz       rt      maxo        sn
 [1,] 57.06821 1299.491  7.088608  7.150621
 [2,] 60.07875 1368.869 12.151901 10.056416
@@ -634,16 +756,12 @@ is flanked by the fourth and fifth QC samples, at positions 5 and 14:
 [4,] 69.06414 1686.200 14.177216  9.407192
 [5,] 69.06279 1845.409 14.177216  6.286520
 [6,] 69.06596 1616.806  9.113922  4.191239
-\end{Soutput}
-\begin{Sinput}
 > ## the weighted average of the warpings of the 2 QC samples
 > interpolate.warping(All.pks[[12]][1:6, "rt"],
 +                     QCwarpings[[relevant.warpings[1]]]$warp.coef,
 +                     QCwarpings[[relevant.warpings[2]]]$warp.coef,
 +                     neighbours.idx[5,],
 +                     type = "time")
-\end{Sinput}
-\begin{Soutput}
          [,1]
 [1,] 1270.069
 [2,] 1338.654
@@ -651,26 +769,27 @@ is flanked by the fourth and fifth QC samples, at positions 5 and 14:
 [4,] 1651.215
 [5,] 1807.324
 [6,] 1583.025
-\end{Soutput}
-\begin{Sinput}
 > ## one warping, obtained by the weighted average of the warping coefs
 > interpolate.warping(All.pks[[12]][1:6, "rt"],
 +                     QCwarpings[[relevant.warpings[1]]]$warp.coef,
 +                     QCwarpings[[relevant.warpings[2]]]$warp.coef,
 +                     neighbours.idx[5,],
 +                     type = "coef")               
-\end{Sinput}
-\begin{Soutput}
 [1] 1270.069 1338.654 1339.941 1651.215 1807.324 1583.025
-\end{Soutput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 Clearly, the results of the two types of warping are the
 same. Calculating average coefficients is more efficient, so that is
 the default in our function. Now, let's do this for all the samples,
 where we have to remember not only to correct the retention time but
 also the intervals around the retention times:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > corrected.pks <- 
 +   lapply(1:nrow(neighbours.idx),
 +          function(pki) {
@@ -678,29 +797,32 @@ also the intervals around the retention times:
 +                                 metaInf[neighbours.idx[pki, 1], "file.name"])
 +            QC1 <- which(QC.idx == neighbours.idx[pki, 2]) - 1
 +            QC2 <- which(QC.idx == neighbours.idx[pki, 3]) - 1
-+            
 +            coef1 <- QCwarpings[[QC1]]$warp.coef
 +            coef2 <- QCwarpings[[QC2]]$warp.coef
 +            
 +            cpk <- All.pks[[smp.idx]]
-+            cpk[,"rt"] <- interpolate.warping(cpk[,"rt"],
-+                                              coef1, coef2,
-+                                              neighbours.idx[pki,])
-+            cpk[,"rtmin"] <- interpolate.warping(cpk[,"rtmin"],
-+                                                 coef1, coef2,
-+                                                 neighbours.idx[pki,])
-+            cpk[,"rtmax"] <- interpolate.warping(cpk[,"rtmax"],
-+                                                 coef1, coef2,
-+                                                 neighbours.idx[pki,])
++            cpk[,"rt"] <-
++              interpolate.warping(cpk[,"rt"], coef1, coef2, neighbours.idx[pki,])
++            cpk[,"rtmin"] <-
++              interpolate.warping(cpk[,"rtmin"], coef1, coef2,
++                                  neighbours.idx[pki,])
++            cpk[,"rtmax"] <-
++              interpolate.warping(cpk[,"rtmax"], coef1, coef2,
++                                  neighbours.idx[pki,])
 +            cpk
 +          })
 > names(corrected.pks) <- metaInf[neighbours.idx[,1], "file.name"]
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 Applying the peak-based warpings to the TICs is done following exactly
 the same line as earlier. First we correct all apple profiles:
-\begin{Schunk}
-\begin{Sinput}
+
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > samp.tics <- All.tics[sample.idx] ## only real apple samples
 > Corr.tics <- 
 +   lapply(seq(along = samp.tics),
@@ -710,17 +832,19 @@ the same line as earlier. First we correct all apple profiles:
 +            } else {
 +              QC1 <- which(QC.idx == neighbours.idx[ii, 2]) - 1
 +              QC2 <- which(QC.idx == neighbours.idx[ii, 3]) - 1
-+              
 +              coef1 <- QCwarpings[[QC1]]$warp.coef
 +              coef2 <- QCwarpings[[QC2]]$warp.coef
-+ 
-+              new.times <- interpolate.warping(samp.tics[[ii]]$scantime, 
-+                                               coef1, coef2, 
-+                                               neighbours.idx[ii,])
++              
++              new.times <-
++                interpolate.warping(samp.tics[[ii]]$scantime, 
++                                    coef1, coef2, neighbours.idx[ii,])
 +              list(tic = samp.tics[[ii]]$tic, scantime = new.times)
 +            }})
-\end{Sinput}
-\end{Schunk}
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+\noindent
 A part of the time axis of these corrected TICs is
 shown in Figure~\ref{fig:ticsCorr}. This figure should be compared
 with Figure~\ref{fig:tics} -- again, we can see that within each class
@@ -729,10 +853,13 @@ some variation, but the large effects of the leaking column have been
 eliminated, and the remaining variation is probably small enough to be
 tackled with the usual retention time correction methods present in
 \code{XCMS}.
+
 \begin{figure}[tb]
 \centering
-\setkeys{Gin}{width=.8\textwidth}
-\includegraphics{stickPTW-025}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}
+\includegraphics[width=\textwidth]{figure/ticsCorr-1} 
+\end{knitrout}
 \caption{Corrected TICs of the LC-MS data, where the warping functions
   are obtained from the peak lists.}
 \label{fig:ticsCorr}
@@ -796,18 +923,17 @@ vignette, for example, we have not optimized the bin width at all.
 
 \clearpage
 \section{Technical details}
-\begin{Schunk}
-\begin{Sinput}
+\begin{knitrout}\small
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{verbatim}
 > sessionInfo()
-\end{Sinput}
-\begin{Soutput}
-R version 3.6.1 (2019-07-05)
+R version 4.1.2 (2021-11-01)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 18.04.3 LTS
+Running under: Ubuntu 20.04.3 LTS
 
 Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
-LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
 
 locale:
  [1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C              
@@ -818,59 +944,17 @@ locale:
 [11] LC_MEASUREMENT=nl_NL.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
-[1] stats4    parallel  stats     graphics  grDevices
-[6] utils     datasets  methods   base     
+[1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] ptw_1.9-14          lattice_0.20-38    
- [3] metaMS_1.19.0       CAMERA_1.38.0      
- [5] xcms_3.4.0          MSnbase_2.8.0      
- [7] ProtGenerics_1.14.0 S4Vectors_0.20.1   
- [9] mzR_2.16.0          Rcpp_1.0.2         
-[11] BiocParallel_1.16.0 Biobase_2.42.0     
-[13] BiocGenerics_0.28.0
+[1] ptw_1.9-16      lattice_0.20-45 knitr_1.36     
 
 loaded via a namespace (and not attached):
- [1] vsn_3.50.0             splines_3.6.1         
- [3] foreach_1.4.4          Formula_1.2-3         
- [5] assertthat_0.2.0       BiocManager_1.30.4    
- [7] affy_1.60.0            latticeExtra_0.6-28   
- [9] RBGL_1.58.0            robustbase_0.93-3     
-[11] impute_1.56.0          pillar_1.3.0          
-[13] backports_1.1.2        glue_1.3.1            
-[15] limma_3.38.2           digest_0.6.21         
-[17] RColorBrewer_1.1-2     checkmate_1.8.5       
-[19] colorspace_1.3-2       htmltools_0.3.6       
-[21] preprocessCore_1.44.0  Matrix_1.2-15         
-[23] plyr_1.8.4             MALDIquant_1.18       
-[25] XML_3.98-1.16          pkgconfig_2.0.2       
-[27] zlibbioc_1.28.0        purrr_0.3.3           
-[29] scales_1.0.0           RANN_2.6              
-[31] affyio_1.52.0          tibble_1.4.2          
-[33] htmlTable_1.12         IRanges_2.16.0        
-[35] ggplot2_3.1.0          nnet_7.3-12           
-[37] lazyeval_0.2.1         MassSpecWavelet_1.48.0
-[39] survival_2.43-1        magrittr_1.5          
-[41] crayon_1.3.4           ncdf4_1.16            
-[43] doParallel_1.0.14      MASS_7.3-51.1         
-[45] foreign_0.8-71         graph_1.60.0          
-[47] data.table_1.11.8      tools_3.6.1           
-[49] stringr_1.3.1          munsell_0.5.0         
-[51] cluster_2.0.7-1        bindrcpp_0.2.2        
-[53] pcaMethods_1.74.0      compiler_3.6.1        
-[55] mzID_1.20.0            rlang_0.4.0           
-[57] nloptr_1.2.1           grid_3.6.1            
-[59] rstudioapi_0.10        iterators_1.0.10      
-[61] htmlwidgets_1.3        igraph_1.2.2          
-[63] base64enc_0.1-3        gtable_0.2.0          
-[65] codetools_0.2-16       multtest_2.38.0       
-[67] R6_2.4.0               gridExtra_2.3         
-[69] knitr_1.20             dplyr_0.7.8           
-[71] bindr_0.1.1            Hmisc_4.1-1           
-[73] stringi_1.2.4          rpart_4.1-15          
-[75] acepack_1.4.1          DEoptimR_1.0-8        
-[77] tidyselect_0.2.5      
-\end{Soutput}
-\end{Schunk}
+ [1] RcppDE_0.1.6   compiler_4.1.2 magrittr_2.0.1 tools_4.1.2    Rcpp_1.0.7    
+ [6] stringi_1.7.5  highr_0.9      grid_4.1.2     stringr_1.4.0  xfun_0.26     
+[11] evaluate_0.14 
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
 
 \end{document}

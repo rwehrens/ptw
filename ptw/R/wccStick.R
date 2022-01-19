@@ -94,7 +94,7 @@ stwarp <- function (ref, samp, init.coef, try = FALSE, trwdth,
       ## a <- NLOpt[[which.min(wccs)]]$solution
       GASol <- lapply(1:nGlobal,
                       function(ii)
-                        DEoptim(ptw:::STWCC,
+                        DEoptim(STWCC,
                                 lower = rep(-1e+05, n), upper = rep(1e+05, n),
                                 refList = ref, sampList = samp,
                                 trwdth = trwdth, ref.acors = ref.acors,

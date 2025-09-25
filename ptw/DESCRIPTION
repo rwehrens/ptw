@@ -21,7 +21,8 @@ Description: Parametric Time Warping aligns patterns, i.e. it aims to
 	warping of peak profiles and of peak lists are supported. A
 	vignette for the latter is contained in the inst/doc directory
 	of the source package - the vignette source can be found on
-	the package github site.
+	the package github site. See `citation("ptw")` for more details.
 URL: https://github.com/rwehrens/ptw
+BugReports: https://github.com/rwehrens/ptw/issues
 License: GPL (>= 2)
 Imports: RcppDE, graphics, grDevices, stats

@@ -3,7 +3,7 @@
 \alias{pktab2mzchannel}
 \title{
 Conversion between peak lists from hyphenated MS (LCMS, GCMS, ...) data
-and input for \code{stptw}.
+and input for \code{stptw}
 }
 \description{Function pktab2mzchannel allows to split a list of peaks
   into several sublists, for instance on the basis of m/z values. The
@@ -11,7 +11,7 @@ and input for \code{stptw}.
   from packages like \code{XCMS}. The reverse function,
   mzchannel2pktab, simply gathers all peak positions in one matrix.}
 \usage{
-pktab2mzchannel(pktab, Ivalue = "maxo", masses = NULL, nMasses = 0, massDigits = 2) 
+pktab2mzchannel(pktab, Ivalue = "maxo", masses = NULL, nMasses = 0, massDigits = 2)
 mzchannel2pktab(mzchannels)
 }
 %- maybe also 'usage' for other objects documented here.

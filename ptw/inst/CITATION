@@ -1,41 +1,36 @@
-citHeader("To cite package 'ptw' in publications use:")
+## R package reference generated from DESCRIPTION metadata
+citation(auto = meta)
 
-     ## R >= 2.8.0 passes package metadata to citation().
-     if(!exists("meta") || is.null(meta)) meta <- packageDescription("ptw")
-     year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
-     vers <- paste("R package version", meta$Version)
+bibentry(bibtype="Article",
+         key = "Bloemberg2010",
+         title = "Improved Parametric Time Warping for Proteomics",
+         author = c(person("Tom G.", "Bloemberg"),
+                    person("Jan", "Gerretzen"),
+                    person("Hans J. P.", "Wouters"),
+                    person("Jolein", "Gloerich"),
+                    person("Maurice", "van Dael"),
+                    person("Hans J. C. T.", "Wessels"),
+                    person("Lambert P.", "van den Heuvel"),
+                    person("Paul H. C.", "Eilers"),
+                    person("Lutgarde M. C.", "Buydens"),
+                    person("Ron", "Wehrens")),
+         year = "2010",
+         journal = "Chemometrics and Intelligent Laboratory Systems",
+         volume = "104",
+         number = "1",
+         pages = "65-74"
+         )
 
-	bibentry(bibtype="Article",
-	   key = "Bloemberg2010",
-		 title = "Improved Parametric Time Warping for Proteomics",
-		 author = c(person("Tom G.", "Bloemberg"),
-    				    person("Jan", "Gerretzen"),
-    				    person("Hans J. P.", "Wouters"),
-    				    person("Jolein", "Gloerich"),
-    				    person("Maurice", "van Dael"),
-    				    person("Hans J. C. T.", "Wessels"),
-    				    person("Lambert P.", "van den Heuvel"),
-    				    person("Paul H. C.", "Eilers"),
-    				    person("Lutgarde M. C.", "Buydens"),
-    				    person("Ron", "Wehrens")),
-
-		 year = "2010",
-		 journal = "Chemometrics and Intelligent Laboratory Systems",
-  		 volume = "104",
-		 number = "1",
-		 pages = "65-74"
-		)
-
-	bibentry(bibtype="Article",
-	   key = "Wehrens2015",
-		 title = "Fast parametric warping of peak lists",
-		 author = c(person("Ron", "Wehrens"),
-		            person("Tom G.", "Bloemberg"),
-		            person("Paul H. C.", "Eilers")),
-		 year = "2015",
-		 volume = "31",
-		 number = "18",
-		 pages = "3063--3065",
-		 journal = "Bioinformatics",
-		 DOI = "10.1093/bioinformatics/btv299"
-		)
+bibentry(bibtype="Article",
+         key = "Wehrens2015",
+         title = "Fast parametric warping of peak lists",
+         author = c(person("Ron", "Wehrens"),
+                    person("Tom G.", "Bloemberg"),
+                    person("Paul H. C.", "Eilers")),
+         year = "2015",
+         volume = "31",
+         number = "18",
+         pages = "3063--3065",
+         journal = "Bioinformatics",
+         DOI = "10.1093/bioinformatics/btv299"
+         )
